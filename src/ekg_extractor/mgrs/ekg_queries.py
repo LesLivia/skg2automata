@@ -1,5 +1,6 @@
 import configparser
 import json
+import os
 
 from neo4j import Driver, Result
 from tqdm import tqdm
@@ -7,10 +8,11 @@ from tqdm import tqdm
 from src.ekg_extractor.model.schema import Event, Entity, Sensor, Timestamp
 
 config = configparser.ConfigParser()
-config.read('./resources/config/config.ini')
+curr_path = os.getcwd().split('src/ekg_extractor')[0]
+config.read('{}/resources/config/config.ini'.format(curr_path))
 config.sections()
 
-SCHEMA_PATH = config['NEO4J SCHEMA']['schema.path'].format(config['NEO4J SCHEMA']['schema.name'])
+SCHEMA_PATH = config['NEO4J SCHEMA']['schema.path'].format(curr_path, config['NEO4J SCHEMA']['schema.name'])
 
 
 class Ekg_Querier:

@@ -1,9 +1,11 @@
 import configparser
+import os
 from datetime import datetime
 from enum import Enum
 
 config = configparser.ConfigParser()
-config.read('./resources/config/config.ini')
+curr_path = os.getcwd().split('src/ekg_extractor')[0]
+config.read('{}/resources/config/config.ini'.format(curr_path))
 config.sections()
 
 

@@ -1,4 +1,5 @@
 import configparser
+import os
 
 from neo4j import GraphDatabase, Driver
 
@@ -7,7 +8,8 @@ from src.ekg_extractor.logger.logger import Logger
 LOGGER = Logger('DB Connector')
 
 config = configparser.ConfigParser()
-config.read('./resources/config/config.ini')
+curr_path = os.getcwd().split('src/ekg_extractor')[0]
+config.read('{}/resources/config/config.ini'.format(curr_path))
 config.sections()
 
 DB_IP = config['NEO4J SETTINGS']['db.ip']
