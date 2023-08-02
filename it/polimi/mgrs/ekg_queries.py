@@ -25,6 +25,11 @@ class Ekg_Querier:
             return [Event.parse_evt(e, self.schema['event_properties']) for e in
                     tqdm(events_recs.data())]
 
+    def get_unique_events(self):
+        all_events = self.get_events()
+        unique_events = [(e.activity, e.sensor) for e in all_events]
+        return set(unique_events)
+
     def get_events_by_date(self, start_t: Timestamp = None, end_t=None):
         query = ""
         if start_t is None and end_t is None:

@@ -15,6 +15,8 @@ try:
     end_t = Timestamp(1970, 1, 3, 0, 0, 0)
     events = querier.get_events_by_date(end_t=start_t)
     print(events[0])
+    unique_events = querier.get_unique_events()
+    print(unique_events[0])
     entities = querier.get_entities()
     print(entities[0])
     sensors = querier.get_sensors()
