@@ -9,7 +9,7 @@ LOGGER = Logger('DB Connector')
 
 config = configparser.ConfigParser()
 if 'submodules' in os.listdir():
-    curr_path = os.getcwd() + 'submodules/ekg_extractor'
+    curr_path = os.getcwd() + '/submodules/ekg_extractor'
 else:
     curr_path = os.getcwd().split('src/ekg_extractor')[0]
 config.read('{}/resources/config/config.ini'.format(curr_path))
