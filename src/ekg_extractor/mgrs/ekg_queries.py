@@ -61,6 +61,16 @@ class Ekg_Querier:
             return [Event.parse_evt(e, self.schema['event_properties']) for e in
                     tqdm(events_recs.data())]
 
+    def get_events_by_entity(self, en_id: str):
+        query = "MATCH (e:{}) WHERE e.{} = {} RETURN e ORDER BY e.{}".format(self.schema['event'],
+                                                                             self.schema['event_properties']['en_id'],
+                                                                             en_id,
+                                                                             self.schema['event_properties']['t'])
+        with self.driver.session() as session:
+            events_recs: Result = session.run(query)
+            return [Event.parse_evt(e, self.schema['event_properties']) for e in
+                    tqdm(events_recs.data())]
+
     def get_entities(self):
         with self.driver.session() as session:
             entities = session.run("MATCH (e:{}) RETURN e".format(self.schema['entity']))
