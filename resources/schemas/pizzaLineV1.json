@@ -1,0 +1,23 @@
+{
+  "event": "Event",
+  "event_properties": {
+    "act": "activity",
+    "en_id": "pizzaId",
+    "sns": "sensor",
+    "t": "timestampInDatetime"
+  },
+  "entity": "Entity",
+  "entity_properties": {
+    "id": "ID",
+    "en_type": "entityType",
+    "en_id": "pizzaId",
+    "uID": "uID"
+  },
+  "sensor": "Class",
+  "sensor_properties": {
+    "id": "ID",
+    "cID": "cID",
+    "sns_type": "classType",
+    "sns": "sensor"
+  }
+}

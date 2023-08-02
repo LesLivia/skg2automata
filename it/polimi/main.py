@@ -10,7 +10,12 @@ LOGGER.info('Starting...')
 try:
     driver = conn.get_driver()
     querier = Ekg_Querier(driver)
-    print(querier.get_events()[0])
+    events = querier.get_events()
+    print(events[0])
+    entities = querier.get_entities()
+    print(entities[0])
+    sensors = querier.get_sensors()
+    print(sensors[0])
     conn.close_connection(driver)
     LOGGER.info('EKG querying done.')
 except AuthError:
