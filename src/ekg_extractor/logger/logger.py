@@ -4,7 +4,10 @@ from datetime import datetime
 from enum import Enum
 
 config = configparser.ConfigParser()
-curr_path = os.getcwd().split('src/ekg_extractor')[0]
+if 'submodules' in os.listdir():
+    curr_path = os.getcwd() + 'submodules/ekg_extractor'
+else:
+    curr_path = os.getcwd().split('src/ekg_extractor')[0]
 config.read('{}/resources/config/config.ini'.format(curr_path))
 config.sections()
 
