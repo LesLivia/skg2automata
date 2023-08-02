@@ -4,7 +4,7 @@ import json
 from neo4j import Driver, Result
 from tqdm import tqdm
 
-from it.polimi.model.schema import Event, Entity, Sensor
+from it.polimi.model.schema import Event, Entity, Sensor, Timestamp
 
 config = configparser.ConfigParser()
 config.read('./resources/config/config.ini')
@@ -22,6 +22,32 @@ class Ekg_Querier:
     def get_events(self):
         with self.driver.session() as session:
             events_recs: Result = session.run("MATCH (e:{}) RETURN e".format(self.schema['event']))
+            return [Event.parse_evt(e, self.schema['event_properties']) for e in
+                    tqdm(events_recs.data())]
+
+    def get_events_by_date(self, start_t: Timestamp = None, end_t=None):
+        query = ""
+        if start_t is None and end_t is None:
+            return self.get_events()
+        elif start_t is not None and end_t is None:
+            query = "MATCH (e:{}) WHERE e.{} > datetime({{epochmillis: apoc.date.parse(\"{}\", " \
+                    "\"ms\", \"yyyy-MM-dd hh:mm:ss\")}}) RETURN e " \
+                    "ORDER BY e.{}".format(self.schema['event'], self.schema['event_properties']['t'], str(start_t),
+                                           self.schema['event_properties']['t'])
+        elif start_t is None and end_t is not None:
+            query = "MATCH (e:{}) WHERE e.{} < datetime({{epochmillis: apoc.date.parse(\"{}\", " \
+                    "\"ms\", \"yyyy-MM-dd hh:mm:ss\")}}) RETURN e " \
+                    "ORDER BY e.{}".format(self.schema['event'], self.schema['event_properties']['t'], str(end_t),
+                                           self.schema['event_properties']['t'])
+        elif start_t is not None and end_t is not None:
+            query = "MATCH (e:{}) where e.{} > datetime({{epochmillis: apoc.date.parse(\"{}\", " \
+                    "\"ms\", \"yyyy-MM-dd hh:mm:ss\")}}) and e.{} < datetime({{epochmillis: apoc.date.parse(\"{}\", " \
+                    "\"ms\", \"yyyy-MM-dd hh:mm:ss\")}}) return e " \
+                    "ORDER BY e.{}".format(self.schema['event'], self.schema['event_properties']['t'], str(start_t),
+                                           self.schema['event_properties']['t'], str(end_t),
+                                           self.schema['event_properties']['t'])
+        with self.driver.session() as session:
+            events_recs: Result = session.run(query)
             return [Event.parse_evt(e, self.schema['event_properties']) for e in
                     tqdm(events_recs.data())]
 

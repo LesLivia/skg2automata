@@ -1,6 +1,5 @@
 from typing import Dict
 
-from neo4j import Record
 from neo4j.time import DateTime
 
 
@@ -14,7 +13,8 @@ class Timestamp:
         self.sec = sec
 
     def __str__(self):
-        return '{}/{}/{} {}:{}:{}'.format(self.year, self.month, self.day, self.hour, self.mins, self.sec)
+        return '{}-{}-{} {}:{}:{}'.format(self.year, str(self.month).zfill(2), str(self.day).zfill(2),
+                                          str(self.hour).zfill(2), str(self.mins).zfill(2), str(self.sec).zfill(2))
 
     @staticmethod
     def parse_ts(dt: DateTime):
@@ -45,7 +45,7 @@ class Entity:
         self.extra_attr = extra_attr
 
     @staticmethod
-    def parse_ent(r: Record, p: Dict[str, str]):
+    def parse_ent(r, p: Dict[str, str]):
         attr = r['e']
         new_entity = Entity(attr[p['id']], attr[p['en_type']], attr[p['uID']], {})
         for k in attr:
@@ -64,7 +64,7 @@ class Sensor:
         self.extra_attr = extra_attr
 
     @staticmethod
-    def parse_sns(r: Record, p: Dict[str, str]):
+    def parse_sns(r, p: Dict[str, str]):
         attr = r['s']
         try:
             new_sensor = Sensor(attr[p['cID']], attr[p['sns_type']], {})
