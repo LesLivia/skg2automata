@@ -21,7 +21,7 @@ is given in the [`pizzaLineV1.json`](resources/schemas/pizzaLineV1.json) file.
 
 ## How to use
 
-Available queries are implemented as methods of the [`Ekg_Querier`](it/polimi/mgrs/ekg_queries.py) class:
+Available queries are implemented as methods of the [`Ekg_Querier`](src/ekg_extractor/mgrs/ekg_queries.py) class:
 
 - *get_events()*: Returns all Event nodes.
 - *get_events_by_date(start_t, end_t)*: Return Event nodes filtered by timestamp. If both start_t and end_t are given, it returns events such that the timestamp is within range [start_t, end_t]. If only one parameter is specified, it returns events such that the timestamp is greater than start_t or smaller than end_t. If no parameter is specified, it returns all events.

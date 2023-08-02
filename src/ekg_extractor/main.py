@@ -1,8 +1,8 @@
-import it.polimi.mgrs.db_connector as conn
-from it.polimi.logger.logger import Logger
-from it.polimi.mgrs.ekg_queries import Ekg_Querier
+import src.ekg_extractor.mgrs.db_connector as conn
+from src.ekg_extractor.logger.logger import Logger
+from src.ekg_extractor.mgrs.ekg_queries import Ekg_Querier
 from neo4j.exceptions import AuthError
-from it.polimi.model.schema import Timestamp
+from src.ekg_extractor.model.schema import Timestamp
 
 LOGGER = Logger('main')
 

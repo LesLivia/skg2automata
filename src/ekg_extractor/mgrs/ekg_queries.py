@@ -4,7 +4,7 @@ import json
 from neo4j import Driver, Result
 from tqdm import tqdm
 
-from it.polimi.model.schema import Event, Entity, Sensor, Timestamp
+from src.ekg_extractor.model.schema import Event, Entity, Sensor, Timestamp
 
 config = configparser.ConfigParser()
 config.read('./resources/config/config.ini')

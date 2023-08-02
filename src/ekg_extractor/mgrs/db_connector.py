@@ -2,7 +2,7 @@ import configparser
 
 from neo4j import GraphDatabase, Driver
 
-from it.polimi.logger.logger import Logger
+from src.ekg_extractor.logger.logger import Logger
 
 LOGGER = Logger('DB Connector')
 
