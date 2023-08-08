@@ -14,12 +14,16 @@
   "entity_properties": {
     "id": "ID"
   },
+  "event_to_entity": "CORR",
   "activity": "Class",
   "activity_labels": [
     "Class_station",
     "Class_sensor"
   ],
   "activity_properties": {
-    "id": ["sensor", "uID"]
+    "id": [
+      "sensor",
+      "uID"
+    ]
   }
 }

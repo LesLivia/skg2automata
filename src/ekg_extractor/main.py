@@ -21,14 +21,8 @@ try:
     for a in activities[:5]:
         print(a)
 
-    events = querier.get_unique_events()
+    events = querier.get_events_by_entity('B_1000_000001')
     for e in events:
-        print(e)
-
-    start_t = Timestamp(1970, 1, 1, 0, 0, 0)
-    end_t = Timestamp(1970, 1, 2, 0, 0, 0)
-    events = querier.get_events_by_date(start_t, end_t)
-    for e in events[:5]:
         print(e.activity)
 
     conn.close_connection(driver)

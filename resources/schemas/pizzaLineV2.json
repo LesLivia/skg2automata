@@ -19,6 +19,7 @@
   "entity_properties": {
     "id": "sysId"
   },
+  "event_to_entity": "ACTS_ON",
   "activity": "Activity",
   "activity_labels": [],
   "activity_properties": {
