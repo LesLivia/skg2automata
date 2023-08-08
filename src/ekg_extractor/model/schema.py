@@ -38,46 +38,40 @@ class Event:
 
 
 class Entity:
-    def __init__(self, _id: int, en_type: str, uID: str, extra_attr: Dict[str, str]):
+    def __init__(self, _id: int, extra_attr: Dict[str, str]):
         self._id = _id
-        self.en_type = en_type
-        self.uID = uID
         self.extra_attr = extra_attr
 
     @staticmethod
     def parse_ent(r, p: Dict[str, str]):
         attr = r['e']
-        new_entity = Entity(attr[p['id']], attr[p['en_type']], attr[p['uID']], {})
+        new_entity = Entity(attr[p['id']], {})
         for k in attr:
-            if k not in [p['id'], p['en_type'], p['uID']]:
+            if k not in [p['id']]:
                 new_entity.extra_attr[k] = attr[k]
         return new_entity
 
     def __str__(self):
-        return '{}, {}, {}, {}'.format(self._id, self.uID, self.en_type, self.extra_attr)
+        return '{}, {}'.format(self._id, self.extra_attr)
 
 
-class Sensor:
-    def __init__(self, cID: str, sns_type: str, extra_attr: Dict[str, str]):
-        self.cID = cID
-        self.sns_type = sns_type
+class Activity:
+    def __init__(self, act: str, extra_attr: Dict[str, str]):
+        self.act = act
         self.extra_attr = extra_attr
 
     @staticmethod
-    def parse_sns(r, p: Dict[str, str]):
+    def parse_act(r, p: Dict[str, str]):
         attr = r['s']
-        try:
-            new_sensor = Sensor(attr[p['cID']], attr[p['sns_type']], {})
-            for k in attr:
-                if k not in [p['cID'], p['sns_type']]:
-                    new_sensor.extra_attr[k] = attr[k]
-            return new_sensor
-        except KeyError:
-            new_sensor = Sensor(attr[p['id']], attr[p['sns_type']], {})
-            for k in attr:
-                if k not in [p['id'], p['sns_type']]:
-                    new_sensor.extra_attr[k] = attr[k]
-            return new_sensor
+        new_activity: Activity = Activity('', {})
+        for key in p['id']:
+            if key in attr:
+                new_activity.act = attr[key]
+                break
+        for k in attr:
+            if k not in [p['id']]:
+                new_activity.extra_attr[k] = attr[k]
+        return new_activity
 
     def __str__(self):
-        return '{}, {}, {}'.format(self.cID, self.sns_type, self.extra_attr)
+        return '{}, {}'.format(self.act, self.extra_attr)

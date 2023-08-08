@@ -11,10 +11,21 @@ LOGGER.info('Starting...')
 try:
     driver = conn.get_driver()
     querier = Ekg_Querier(driver)
-    entities = querier.get_entities()
-    for entity in entities[:5]:
-        events = querier.get_events_by_entity(entity.extra_attr[querier.schema['event_properties']['en_id']])
-        print(len(events))
+
+    labels = ["Pizza"]
+    entities = querier.get_entities_by_labels(labels)
+    for e in entities[:5]:
+        print(e)
+
+    activities = querier.get_activities()
+    for a in activities[:5]:
+        print(a)
+
+    start_t = Timestamp(1970, 1, 1, 0, 0, 0)
+    end_t = Timestamp(1970, 1, 2, 0, 0, 0)
+    events = querier.get_events_by_date(start_t)
+    for e in events[:5]:
+        print(e.entity_id)
     conn.close_connection(driver)
     LOGGER.info('EKG querying done.')
 except AuthError:

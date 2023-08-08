@@ -1,11 +1,12 @@
 import configparser
 import json
 import os
+from typing import List
 
 from neo4j import Driver, Result
 from tqdm import tqdm
 
-from src.ekg_extractor.model.schema import Event, Entity, Sensor, Timestamp
+from src.ekg_extractor.model.schema import Event, Entity, Activity, Timestamp
 
 config = configparser.ConfigParser()
 if 'submodules' in os.listdir():
@@ -76,7 +77,18 @@ class Ekg_Querier:
             entities = session.run("MATCH (e:{}) RETURN e".format(self.schema['entity']))
             return [Entity.parse_ent(e, self.schema['entity_properties']) for e in tqdm(entities.data())]
 
-    def get_sensors(self):
+    def get_entities_by_labels(self, labels: List[str] = None):
+        if labels is None:
+            return self.get_entities()
+        else:
+            query_filter = "WHERE " + ' and '.join(["e:{}".format(l) for l in labels])
+
+        query = "MATCH (e:{}) {} RETURN e".format(self.schema['entity'], query_filter)
         with self.driver.session() as session:
-            sensors = session.run("MATCH (s:{}) RETURN s".format(self.schema['sensor']))
-            return [Sensor.parse_sns(s, self.schema['sensor_properties']) for s in tqdm(sensors.data())]
+            entities = session.run(query)
+            return [Entity.parse_ent(e, self.schema['entity_properties']) for e in tqdm(entities.data())]
+
+    def get_activities(self):
+        with self.driver.session() as session:
+            activities = session.run("MATCH (s:{}) RETURN s".format(self.schema['activity']))
+            return [Activity.parse_act(s, self.schema['activity_properties']) for s in tqdm(activities.data())]

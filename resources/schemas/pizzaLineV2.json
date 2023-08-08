@@ -9,20 +9,20 @@
   "entity": "Entity",
   "entity_labels": [
     "Pizza",
+    "Pack",
+    "Box",
+    "Pallet",
+    "Resource",
+    "MachinePart",
+    "Sensor",
     "Station"
   ],
   "entity_properties": {
-    "id": "ID",
-    "en_type": "entityType",
-    "en_id": "pizzaId",
-    "uID": "uID"
+    "id": "sysId"
   },
-  "activity": "Class",
-  "activity_labels": [
-    "Class_station",
-    "Class_sensor"
-  ],
+  "activity": "Activity",
+  "activity_labels": [],
   "activity_properties": {
-    "id": ["sensor", "uID"]
+    "id": ["activity"]
   }
 }
