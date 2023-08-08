@@ -1,10 +1,9 @@
 {
   "event": "Event",
+  "event_labels": [],
   "event_properties": {
     "act": "activity",
-    "en_id": "pizzaId",
-    "sns": "sensor",
-    "t": "timestampInDatetime"
+    "timestamp": "timestamp"
   },
   "entity": "Entity",
   "entity_labels": [
@@ -23,6 +22,8 @@
   "activity": "Activity",
   "activity_labels": [],
   "activity_properties": {
-    "id": ["activity"]
+    "id": [
+      "activity"
+    ]
   }
 }

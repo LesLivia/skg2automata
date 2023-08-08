@@ -21,11 +21,16 @@ try:
     for a in activities[:5]:
         print(a)
 
+    events = querier.get_unique_events()
+    for e in events:
+        print(e)
+
     start_t = Timestamp(1970, 1, 1, 0, 0, 0)
     end_t = Timestamp(1970, 1, 2, 0, 0, 0)
-    events = querier.get_events_by_date(start_t)
+    events = querier.get_events_by_date(start_t, end_t)
     for e in events[:5]:
-        print(e.entity_id)
+        print(e.activity)
+
     conn.close_connection(driver)
     LOGGER.info('EKG querying done.')
 except AuthError:

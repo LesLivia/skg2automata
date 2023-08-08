@@ -22,19 +22,29 @@ class Timestamp:
 
 
 class Event:
-    def __init__(self, act: str, en_id: int, sns: str, t: Timestamp):
+    def __init__(self, act: str, t: float, date: Timestamp = None, extra_attr: Dict[str, str] = {}):
         self.activity = act
-        self.entity_id = en_id
-        self.sensor = sns
-        self.t = t
+        self.timestamp = t
+        self.date = date
+        self.extra_attr = extra_attr
 
     @staticmethod
     def parse_evt(r, p: Dict[str, str]):
         attr = r['e']
-        return Event(attr[p['act']], attr[p['en_id']], attr[p['sns']], Timestamp.parse_ts(attr[p['t']]))
+        IGNORE_KEYS = [p['act'], p['timestamp']]
+        if 'date' in p:
+            datetime = Timestamp.parse_ts(attr[p['date']])
+            IGNORE_KEYS.append(p['date'])
+        else:
+            datetime = None
+        extra_attr: Dict[str, str] = {}
+        for key in attr:
+            if key not in IGNORE_KEYS:
+                extra_attr[key] = attr[key]
+        return Event(attr[p['act']], attr[p['timestamp']], datetime, extra_attr)
 
     def __str__(self):
-        return '{}: {}, {}, {}'.format(self.t, self.activity, self.entity_id, self.sensor)
+        return '{}, {}, {}, {}'.format(self.activity, self.timestamp, self.date, self.extra_attr)
 
 
 class Entity:

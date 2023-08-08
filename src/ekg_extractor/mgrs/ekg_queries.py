@@ -6,7 +6,7 @@ from typing import List
 from neo4j import Driver, Result
 from tqdm import tqdm
 
-from src.ekg_extractor.model.schema import Event, Entity, Activity, Timestamp
+from src.ekg_extractor.model.schema import Event, Entity, Activity
 
 config = configparser.ConfigParser()
 if 'submodules' in os.listdir():
@@ -33,30 +33,55 @@ class Ekg_Querier:
 
     def get_unique_events(self):
         all_events = self.get_events()
-        unique_events = [(e.activity, e.sensor) for e in all_events]
+        unique_events = [e.activity for e in all_events]
         return set(unique_events)
 
-    def get_events_by_date(self, start_t: Timestamp = None, end_t=None):
+    def get_events_by_timestamp(self, start_t: int = None, end_t: int = None):
         query = ""
+
+        if start_t is not None and end_t is None:
+            query = "MATCH (e:{}) WHERE e.{} > {} RETURN e " \
+                    "ORDER BY e.{}".format(self.schema['event'], self.schema['event_properties']['timestamp'],
+                                           str(start_t), self.schema['event_properties']['timestamp'])
+        elif start_t is None and end_t is not None:
+            query = "MATCH (e:{}) WHERE e.{} < {} RETURN e " \
+                    "ORDER BY e.{}".format(self.schema['event'], self.schema['event_properties']['timestamp'],
+                                           str(end_t), self.schema['event_properties']['timestamp'])
+        elif start_t is not None and end_t is not None:
+            query = "MATCH (e:{}) where e.{} > {} and e.{} < {} return e " \
+                    "ORDER BY e.{}".format(self.schema['event'], self.schema['event_properties']['timestamp'],
+                                           str(start_t), self.schema['event_properties']['timestamp'],
+                                           str(end_t), self.schema['event_properties']['timestamp'])
+        with self.driver.session() as session:
+            events_recs: Result = session.run(query)
+            return [Event.parse_evt(e, self.schema['event_properties']) for e in
+                    tqdm(events_recs.data())]
+
+    def get_events_by_date(self, start_t=None, end_t=None):
+        query = ""
+
         if start_t is None and end_t is None:
             return self.get_events()
+
+        if 'date' not in self.schema['event_properties']:
+            return self.get_events_by_timestamp(start_t, end_t)
         elif start_t is not None and end_t is None:
             query = "MATCH (e:{}) WHERE e.{} > datetime({{epochmillis: apoc.date.parse(\"{}\", " \
                     "\"ms\", \"yyyy-MM-dd hh:mm:ss\")}}) RETURN e " \
-                    "ORDER BY e.{}".format(self.schema['event'], self.schema['event_properties']['t'], str(start_t),
-                                           self.schema['event_properties']['t'])
+                    "ORDER BY e.{}".format(self.schema['event'], self.schema['event_properties']['date'], str(start_t),
+                                           self.schema['event_properties']['date'])
         elif start_t is None and end_t is not None:
             query = "MATCH (e:{}) WHERE e.{} < datetime({{epochmillis: apoc.date.parse(\"{}\", " \
                     "\"ms\", \"yyyy-MM-dd hh:mm:ss\")}}) RETURN e " \
-                    "ORDER BY e.{}".format(self.schema['event'], self.schema['event_properties']['t'], str(end_t),
-                                           self.schema['event_properties']['t'])
+                    "ORDER BY e.{}".format(self.schema['event'], self.schema['event_properties']['date'], str(end_t),
+                                           self.schema['event_properties']['date'])
         elif start_t is not None and end_t is not None:
             query = "MATCH (e:{}) where e.{} > datetime({{epochmillis: apoc.date.parse(\"{}\", " \
                     "\"ms\", \"yyyy-MM-dd hh:mm:ss\")}}) and e.{} < datetime({{epochmillis: apoc.date.parse(\"{}\", " \
                     "\"ms\", \"yyyy-MM-dd hh:mm:ss\")}}) return e " \
-                    "ORDER BY e.{}".format(self.schema['event'], self.schema['event_properties']['t'], str(start_t),
-                                           self.schema['event_properties']['t'], str(end_t),
-                                           self.schema['event_properties']['t'])
+                    "ORDER BY e.{}".format(self.schema['event'], self.schema['event_properties']['date'], str(start_t),
+                                           self.schema['event_properties']['date'], str(end_t),
+                                           self.schema['event_properties']['date'])
         with self.driver.session() as session:
             events_recs: Result = session.run(query)
             return [Event.parse_evt(e, self.schema['event_properties']) for e in
