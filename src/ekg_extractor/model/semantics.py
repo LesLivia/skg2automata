@@ -1,7 +1,9 @@
 from typing import List, Dict, Set, Tuple
 
 from src.ekg_extractor.model.schema import Entity
+from src.ekg_extractor.logger.logger import Logger
 
+LOGGER = Logger('EntityTree Mgr')
 
 class EntityRelationship:
     def __init__(self, source: Entity, target: Entity):
@@ -9,7 +11,7 @@ class EntityRelationship:
         self.target = target
 
 
-class EntityHierarchy:
+class EntityTree:
     def __init__(self, arcs: List[EntityRelationship]):
         self.arcs = arcs
         self.nodes: Dict[Entity, List[Entity]] = {}
@@ -69,3 +71,39 @@ class EntityHierarchy:
         for node in self.nodes:
             if len(self.nodes[node]) == 0:
                 return node
+
+    def overlaps_with(self, other):
+        for node in self.nodes:
+            if node in other.nodes:
+                return True
+        return False
+
+    @staticmethod
+    def merge_trees(t1, t2):
+        return EntityTree(t1.arcs + t2.arcs)
+
+
+class EntityForest:
+    def __init__(self, trees: List[EntityTree]):
+        self.trees = trees
+
+    def overlapping_trees(self):
+        for i, t1 in enumerate(self.trees):
+            for j, t2 in enumerate(self.trees):
+                if i != j and t1.overlaps_with(t2):
+                    return i, j
+        return None
+
+    def reduce(self):
+        tup = self.overlapping_trees()
+        while tup is not None:
+            i, j = tup[0], tup[1]
+            LOGGER.debug('Merging trees {} and {} of {}...'.format(i, j, len(self.trees)))
+            self.trees[i] = EntityTree.merge_trees(self.trees[i], self.trees[j])
+            self.trees.pop(j)
+            tup = self.overlapping_trees()
+
+    def add_trees(self, new_trees: List[EntityTree], reduce: bool = True):
+        self.trees.extend(new_trees)
+        if reduce:
+            self.reduce()

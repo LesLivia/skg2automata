@@ -3,6 +3,7 @@ from neo4j.exceptions import AuthError
 import src.ekg_extractor.mgrs.db_connector as conn
 from src.ekg_extractor.logger.logger import Logger
 from src.ekg_extractor.mgrs.ekg_queries import Ekg_Querier
+from src.ekg_extractor.model.semantics import EntityForest
 
 LOGGER = Logger('main')
 
@@ -14,6 +15,7 @@ try:
 
     entity_label_hierarchy = querier.get_entity_labels_hierarchy()
     print(entity_label_hierarchy)
+    entity_tree = querier.get_entity_tree("PAL_000001", EntityForest([]))
 
     activities = querier.get_activities()
     for a in activities[:5]:

@@ -7,7 +7,7 @@ from neo4j import Driver, Result
 from tqdm import tqdm
 
 from src.ekg_extractor.model.schema import Event, Entity, Activity
-from src.ekg_extractor.model.semantics import EntityHierarchy
+from src.ekg_extractor.model.semantics import EntityTree, EntityRelationship, EntityForest
 
 config = configparser.ConfigParser()
 if 'submodules' in os.listdir():
@@ -128,10 +128,47 @@ class Ekg_Querier:
                 rels.append(('-'.join([r for r in res['labels(e1)'] if r != SCHEMA['entity']]),
                              '-'.join([r for r in res['labels(e2)'] if r != SCHEMA['entity']])))
 
-            return EntityHierarchy.get_labels_hierarchy(set(rels))
+            return EntityTree.get_labels_hierarchy(set(rels))
 
-    def get_entity_trees(self, labels_hierarchy: List[List[str]]):
-        return []
+    def get_entity_forest(self, labels_hierarchy: List[List[str]]):
+        query_tplt = "MATCH (e1:{}) - [:{}] -> (e2:{}) WHERE {} RETURN e1, e2"
+        trees: EntityForest = EntityForest([])
+        for seq_i, seq in enumerate(labels_hierarchy):
+            for i in range(len(seq) - 1, -1, -1):
+                query_filter = 'e2:{}'.format(seq[i].split('-')[0]) + ''.join(
+                    [' and e2:{}'.format(s) for s in seq[i].split('-')[1:]])
+                query = query_tplt.format(SCHEMA['entity'], SCHEMA['entity_to_entity'], SCHEMA['entity'], query_filter)
+                with self.driver.session() as session:
+                    results = session.run(query)
+                    entities: List[Tuple[Entity, Entity]] = [(Entity.parse_ent(r, SCHEMA['entity_properties'], 'e2'),
+                                                              Entity.parse_ent(r, SCHEMA['entity_properties'], 'e1'))
+                                                             for r in results.data()]
+                    if len(entities) == 0:
+                        continue
+
+                    new_rels: List[EntityRelationship] = [EntityRelationship(tup[0], tup[1]) for tup in entities]
+                    trees.add_trees([EntityTree([rel]) for rel in new_rels])
+
+        return trees
+
+    def get_entity_tree(self, entity_id: str, trees: EntityForest):
+        query_tplt = "MATCH (e1:{}) - [:{}] -> (e2:{}) WHERE toString(e2.{}) = \"{}\" RETURN e1,e2"
+        query = query_tplt.format(SCHEMA['entity'], SCHEMA['entity_to_entity'], SCHEMA['entity'],
+                                  SCHEMA['entity_properties']['id'], entity_id)
+        with self.driver.session() as session:
+            results = session.run(query)
+            entities: List[Tuple[Entity, Entity]] = [(Entity.parse_ent(r, SCHEMA['entity_properties'], 'e2'),
+                                                      Entity.parse_ent(r, SCHEMA['entity_properties'], 'e1'))
+                                                     for r in results.data()]
+        if len(entities) == 0:
+            return trees
+
+        new_rels: List[EntityRelationship] = [EntityRelationship(tup[0], tup[1]) for tup in entities]
+        trees.add_trees([EntityTree([rel]) for rel in new_rels])
+        children = [e[1]._id for e in entities]
+        for child in children:
+            self.get_entity_tree(child, trees)
+        return trees
 
     def get_activities(self):
         with self.driver.session() as session:

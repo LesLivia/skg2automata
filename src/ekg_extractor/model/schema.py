@@ -48,13 +48,13 @@ class Event:
 
 
 class Entity:
-    def __init__(self, _id: int, extra_attr: Dict[str, str]):
+    def __init__(self, _id, extra_attr: Dict[str, str]):
         self._id = _id
         self.extra_attr = extra_attr
 
     @staticmethod
-    def parse_ent(r, p: Dict[str, str]):
-        attr = r['e']
+    def parse_ent(r, p: Dict[str, str], key: str = 'e'):
+        attr = r[key]
         new_entity = Entity(attr[p['id']], {})
         for k in attr:
             if k not in [p['id']]:
@@ -65,7 +65,7 @@ class Entity:
         return '{}, {}'.format(self._id, self.extra_attr)
 
     def __eq__(self, other):
-        return self._id == other.__id
+        return self._id == other._id
 
     def __hash__(self):
         return hash(self._id)
