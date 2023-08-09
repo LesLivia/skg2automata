@@ -64,6 +64,12 @@ class Entity:
     def __str__(self):
         return '{}, {}'.format(self._id, self.extra_attr)
 
+    def __eq__(self, other):
+        return self._id == other.__id
+
+    def __hash__(self):
+        return hash(self._id)
+
 
 class Activity:
     def __init__(self, act: str, extra_attr: Dict[str, str]):

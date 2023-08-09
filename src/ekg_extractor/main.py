@@ -12,8 +12,7 @@ try:
     driver = conn.get_driver()
     querier = Ekg_Querier(driver)
 
-    labels = ["Pizza"]
-    entities = querier.get_entities_by_labels(labels)
+    entities = querier.get_entity_labels_tree()
     for e in entities[:5]:
         print(e)
 
