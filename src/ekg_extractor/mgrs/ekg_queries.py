@@ -113,7 +113,7 @@ class Ekg_Querier:
             entities = session.run(query)
             return [Entity.parse_ent(e, SCHEMA['entity_properties']) for e in tqdm(entities.data())]
 
-    def get_entity_labels_tree(self):
+    def get_entity_labels_hierarchy(self):
         if 'entity_to_entity' not in SCHEMA:
             return [[l] for l in SCHEMA['entity_labels']]
 
@@ -128,7 +128,10 @@ class Ekg_Querier:
                 rels.append(('-'.join([r for r in res['labels(e1)'] if r != SCHEMA['entity']]),
                              '-'.join([r for r in res['labels(e2)'] if r != SCHEMA['entity']])))
 
-            return EntityHierarchy.get_labels_tree(set(rels))
+            return EntityHierarchy.get_labels_hierarchy(set(rels))
+
+    def get_entity_trees(self, labels_hierarchy: List[List[str]]):
+        return []
 
     def get_activities(self):
         with self.driver.session() as session:
