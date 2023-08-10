@@ -104,11 +104,15 @@ class Ekg_Querier:
         events.sort(key=lambda e: e.timestamp)
         return events
 
-    def get_entities(self, limit: int = None):
-        if limit is None:
-            query = "MATCH (e:{}) RETURN e".format(SCHEMA['entity'])
-        else:
-            query = "MATCH (e:{}) RETURN e LIMIT {}".format(SCHEMA['entity'], limit)
+    def get_entities(self, limit: int = None, random: bool = False):
+        query = "MATCH (e:{}) RETURN e".format(SCHEMA['entity'])
+
+        if random:
+            query = query + ', rand() as r ORDER BY r'
+
+        if limit is not None:
+            query = query + ' LIMIT {}'.format(limit)
+
         with self.driver.session() as session:
             entities = session.run(query)
             return [Entity.parse_ent(e, SCHEMA['entity_properties']) for e in tqdm(entities.data())]
@@ -123,16 +127,20 @@ class Ekg_Querier:
             else:
                 return None
 
-    def get_entities_by_labels(self, labels: List[str] = None, limit: int = None):
+    def get_entities_by_labels(self, labels: List[str] = None, limit: int = None, random: bool = False):
         if labels is None:
-            return self.get_entities(limit)
+            return self.get_entities(limit, random)
         else:
             query_filter = "WHERE " + ' and '.join(["e:{}".format(l) for l in labels])
 
-        if limit is None:
-            query = "MATCH (e:{}) {} RETURN e".format(SCHEMA['entity'], query_filter)
-        else:
-            query = "MATCH (e:{}) {} RETURN e LIMIT {}".format(SCHEMA['entity'], query_filter, limit)
+        query = "MATCH (e:{}) {} RETURN e".format(SCHEMA['entity'], query_filter)
+
+        if random:
+            query = query + ', rand() as r ORDER BY r'
+
+        if limit is not None:
+            query = query + ' LIMIT {}'.format(limit)
+
         with self.driver.session() as session:
             entities = session.run(query)
             return [Entity.parse_ent(e, SCHEMA['entity_properties']) for e in tqdm(entities.data())]
@@ -199,6 +207,12 @@ class Ekg_Querier:
                                                       Entity.parse_ent(r, SCHEMA['entity_properties'], 'e1'))
                                                      for r in results.data()]
         if len(entities) == 0:
+            root_tree = EntityTree([])
+            entity = self.get_entity_by_id(entity_id)
+            if entity is None:
+                return trees
+            root_tree.nodes[entity] = []
+            trees.add_trees([root_tree])
             return trees
 
         new_rels: List[EntityRelationship] = [EntityRelationship(tup[0], tup[1]) for tup in entities]

@@ -14,8 +14,11 @@ try:
     querier = Ekg_Querier(driver)
 
     entity_label_hierarchy = querier.get_entity_labels_hierarchy()
-    print(entity_label_hierarchy)
-    entity_tree = querier.get_entity_tree("1", EntityForest([]), reverse=True)
+
+    entity = querier.get_entities_by_labels(entity_label_hierarchy[0][0].split('-'), 1, True)[0]
+    print(entity.entity_id)
+
+    entity_tree = querier.get_entity_tree(entity.entity_id, EntityForest([]), reverse=True)
 
     events = querier.get_events_by_entity_tree(entity_tree.trees[0])
     for e in events:
