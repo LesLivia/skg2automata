@@ -1,9 +1,10 @@
 from typing import List, Dict, Set, Tuple
 
-from src.ekg_extractor.model.schema import Entity
 from src.ekg_extractor.logger.logger import Logger
+from src.ekg_extractor.model.schema import Entity
 
 LOGGER = Logger('EntityTree Mgr')
+
 
 class EntityRelationship:
     def __init__(self, source: Entity, target: Entity):
@@ -86,6 +87,9 @@ class EntityTree:
 class EntityForest:
     def __init__(self, trees: List[EntityTree]):
         self.trees = trees
+
+    def __getitem__(self, item):
+        return self.trees[item]
 
     def overlapping_trees(self):
         for i, t1 in enumerate(self.trees):

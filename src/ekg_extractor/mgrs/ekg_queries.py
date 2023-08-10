@@ -101,7 +101,7 @@ class Ekg_Querier:
         events: List[Event] = []
         for node in tree.nodes:
             events.extend(self.get_events_by_entity(node._id))
-        events.sort(key= lambda e: e.timestamp)
+        events.sort(key=lambda e: e.timestamp)
         return events
 
     def get_entities(self):
@@ -159,8 +159,12 @@ class Ekg_Querier:
 
         return trees
 
-    def get_entity_tree(self, entity_id: str, trees: EntityForest):
-        query_tplt = "MATCH (e1:{}) - [:{}] -> (e2:{}) WHERE toString(e2.{}) = \"{}\" RETURN e1,e2"
+    def get_entity_tree(self, entity_id: str, trees: EntityForest, reverse: bool = False):
+        if reverse:
+            query_tplt = "MATCH (e1:{}) <- [:{}] - (e2:{}) WHERE toString(e2.{}) = \"{}\" RETURN e1,e2"
+        else:
+            query_tplt = "MATCH (e1:{}) - [:{}] -> (e2:{}) WHERE toString(e2.{}) = \"{}\" RETURN e1,e2"
+
         query = query_tplt.format(SCHEMA['entity'], SCHEMA['entity_to_entity'], SCHEMA['entity'],
                                   SCHEMA['entity_properties']['id'], entity_id)
         with self.driver.session() as session:
@@ -175,7 +179,7 @@ class Ekg_Querier:
         trees.add_trees([EntityTree([rel]) for rel in new_rels])
         children = [e[1]._id for e in entities]
         for child in children:
-            self.get_entity_tree(child, trees)
+            self.get_entity_tree(child, trees, reverse)
         return trees
 
     def get_activities(self):

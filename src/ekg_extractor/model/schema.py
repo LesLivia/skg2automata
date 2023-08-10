@@ -28,6 +28,12 @@ class Event:
         self.date = date
         self.extra_attr = extra_attr
 
+    def __eq__(self, other):
+        return self.activity == other.activity and self.timestamp == other.timestamp
+
+    def __hash__(self):
+        return hash("{},{}".format(self.timestamp, self.activity))
+
     @staticmethod
     def parse_evt(r, p: Dict[str, str]):
         attr = r['e']
@@ -76,6 +82,15 @@ class Activity:
         self.act = act
         self.extra_attr = extra_attr
 
+    def __str__(self):
+        return '{}, {}'.format(self.act, self.extra_attr)
+
+    def __eq__(self, other):
+        return self.act == other.act
+
+    def __hash__(self):
+        return hash(self.act)
+
     @staticmethod
     def parse_act(r, p: Dict[str, str]):
         attr = r['s']
@@ -88,6 +103,3 @@ class Activity:
             if k not in [p['id']]:
                 new_activity.extra_attr[k] = attr[k]
         return new_activity
-
-    def __str__(self):
-        return '{}, {}'.format(self.act, self.extra_attr)
