@@ -21,7 +21,7 @@ try:
     for a in activities[:5]:
         print(a)
 
-    events = querier.get_events_by_entity('B_1000_000001')
+    events = querier.get_events_by_entity_tree(entity_tree.trees[0])
     for e in events:
         print(e.activity)
 

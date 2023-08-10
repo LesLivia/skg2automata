@@ -97,6 +97,13 @@ class Ekg_Querier:
             return [Event.parse_evt(e, SCHEMA['event_properties']) for e in
                     tqdm(events_recs.data())]
 
+    def get_events_by_entity_tree(self, tree: EntityTree):
+        events: List[Event] = []
+        for node in tree.nodes:
+            events.extend(self.get_events_by_entity(node._id))
+        events.sort(key= lambda e: e.timestamp)
+        return events
+
     def get_entities(self):
         with self.driver.session() as session:
             entities = session.run("MATCH (e:{}) RETURN e".format(SCHEMA['entity']))
@@ -131,6 +138,7 @@ class Ekg_Querier:
             return EntityTree.get_labels_hierarchy(set(rels))
 
     def get_entity_forest(self, labels_hierarchy: List[List[str]]):
+        # WARNING: Builds tree for every entity in the KG, likely computational intensive.
         query_tplt = "MATCH (e1:{}) - [:{}] -> (e2:{}) WHERE {} RETURN e1, e2"
         trees: EntityForest = EntityForest([])
         for seq_i, seq in enumerate(labels_hierarchy):
