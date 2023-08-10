@@ -15,7 +15,7 @@ try:
 
     entity_label_hierarchy = querier.get_entity_labels_hierarchy()
     print(entity_label_hierarchy)
-    entity_tree = querier.get_entity_tree("PZ_1000_2", EntityForest([]), reverse=True)
+    entity_tree = querier.get_entity_tree("1", EntityForest([]), reverse=True)
 
     events = querier.get_events_by_entity_tree(entity_tree.trees[0])
     for e in events:

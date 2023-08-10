@@ -55,7 +55,7 @@ class Event:
 
 class Entity:
     def __init__(self, _id, extra_attr: Dict[str, str]):
-        self._id = _id
+        self.entity_id = _id
         self.extra_attr = extra_attr
 
     @staticmethod
@@ -68,13 +68,13 @@ class Entity:
         return new_entity
 
     def __str__(self):
-        return '{}, {}'.format(self._id, self.extra_attr)
+        return '{}, {}'.format(self.entity_id, self.extra_attr)
 
     def __eq__(self, other):
-        return self._id == other._id
+        return self.entity_id == other.entity_id
 
     def __hash__(self):
-        return hash(self._id)
+        return hash(self.entity_id)
 
 
 class Activity:

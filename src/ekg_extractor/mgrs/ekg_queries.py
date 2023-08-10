@@ -100,22 +100,39 @@ class Ekg_Querier:
     def get_events_by_entity_tree(self, tree: EntityTree):
         events: List[Event] = []
         for node in tree.nodes:
-            events.extend(self.get_events_by_entity(node._id))
+            events.extend(self.get_events_by_entity(node.entity_id))
         events.sort(key=lambda e: e.timestamp)
         return events
 
-    def get_entities(self):
+    def get_entities(self, limit: int = None):
+        if limit is None:
+            query = "MATCH (e:{}) RETURN e".format(SCHEMA['entity'])
+        else:
+            query = "MATCH (e:{}) RETURN e LIMIT {}".format(SCHEMA['entity'], limit)
         with self.driver.session() as session:
-            entities = session.run("MATCH (e:{}) RETURN e".format(SCHEMA['entity']))
+            entities = session.run(query)
             return [Entity.parse_ent(e, SCHEMA['entity_properties']) for e in tqdm(entities.data())]
 
-    def get_entities_by_labels(self, labels: List[str] = None):
+    def get_entity_by_id(self, entity_id: str):
+        with self.driver.session() as session:
+            results = session.run("MATCH (e:{}) WHERE toString(e.{}) = \"{}\" "
+                                  "RETURN e".format(SCHEMA['entity'], SCHEMA['entity_properties']['id'], entity_id))
+            entities = [Entity.parse_ent(e, SCHEMA['entity_properties']) for e in tqdm(results.data())]
+            if len(entities) > 0:
+                return entities[0]
+            else:
+                return None
+
+    def get_entities_by_labels(self, labels: List[str] = None, limit: int = None):
         if labels is None:
-            return self.get_entities()
+            return self.get_entities(limit)
         else:
             query_filter = "WHERE " + ' and '.join(["e:{}".format(l) for l in labels])
 
-        query = "MATCH (e:{}) {} RETURN e".format(SCHEMA['entity'], query_filter)
+        if limit is None:
+            query = "MATCH (e:{}) {} RETURN e".format(SCHEMA['entity'], query_filter)
+        else:
+            query = "MATCH (e:{}) {} RETURN e LIMIT {}".format(SCHEMA['entity'], query_filter, limit)
         with self.driver.session() as session:
             entities = session.run(query)
             return [Entity.parse_ent(e, SCHEMA['entity_properties']) for e in tqdm(entities.data())]
@@ -160,6 +177,15 @@ class Ekg_Querier:
         return trees
 
     def get_entity_tree(self, entity_id: str, trees: EntityForest, reverse: bool = False):
+        if 'entity_to_entity' not in SCHEMA:
+            root_tree = EntityTree([])
+            entity = self.get_entity_by_id(entity_id)
+            if entity is None:
+                return trees
+            root_tree.nodes[entity] = []
+            trees.add_trees([root_tree])
+            return trees
+
         if reverse:
             query_tplt = "MATCH (e1:{}) <- [:{}] - (e2:{}) WHERE toString(e2.{}) = \"{}\" RETURN e1,e2"
         else:
@@ -177,7 +203,7 @@ class Ekg_Querier:
 
         new_rels: List[EntityRelationship] = [EntityRelationship(tup[0], tup[1]) for tup in entities]
         trees.add_trees([EntityTree([rel]) for rel in new_rels])
-        children = [e[1]._id for e in entities]
+        children = [e[1].entity_id for e in entities]
         for child in children:
             self.get_entity_tree(child, trees, reverse)
         return trees
