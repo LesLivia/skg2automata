@@ -13,10 +13,10 @@ try:
     driver = conn.get_driver()
     querier = Ekg_Querier(driver)
 
-    resource = querier.get_resources(1, True)[0]
+    resource = querier.get_resources(limit=1, random=True)[0]
     print(resource.entity_id, resource.extra_attr)
 
-    entity = querier.get_items(1, True)[0]
+    entity = querier.get_items(limit=1, random=True)[0]
     print(entity.entity_id, entity.extra_attr)
 
     entity_tree = querier.get_entity_tree(entity.entity_id, EntityForest([]), reverse=True)

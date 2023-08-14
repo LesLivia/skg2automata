@@ -161,8 +161,9 @@ class Ekg_Querier:
             else:
                 return [Entity.parse_ent(e, SCHEMA['entity_properties'], neo4_id=e['ID(e)']) for e in entities.data()]
 
-    def get_items(self, limit: int = None, random: bool = False):
-        labels_hierarchy: List[List[str]] = self.get_entity_labels_hierarchy()
+    def get_items(self, labels_hierarchy=None, limit: int = None, random: bool = False):
+        if labels_hierarchy is None:
+            labels_hierarchy: List[List[str]] = self.get_entity_labels_hierarchy()
         if 'item' in SCHEMA:
             labels_seq = [seq for seq in labels_hierarchy if SCHEMA['item'] in seq][0]
             entities: List[Entity] = []
@@ -172,8 +173,9 @@ class Ekg_Querier:
         else:
             return self.get_entities(limit, random)
 
-    def get_resources(self, limit: int = None, random: bool = False):
-        labels_hierarchy: List[List[str]] = self.get_entity_labels_hierarchy()
+    def get_resources(self, labels_hierarchy=None, limit: int = None, random: bool = False):
+        if labels_hierarchy is None:
+            labels_hierarchy: List[List[str]] = self.get_entity_labels_hierarchy()
         if 'resource' in SCHEMA:
             unpacked_labels_seq = [[label.split('-') for label in seq if '-' in label] for seq in labels_hierarchy]
             [labels_hierarchy.extend(labels) for labels in unpacked_labels_seq if len(labels) > 0]
