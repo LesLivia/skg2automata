@@ -59,9 +59,12 @@ class Entity:
         self.extra_attr = extra_attr
 
     @staticmethod
-    def parse_ent(r, p: Dict[str, str], key: str = 'e'):
+    def parse_ent(r, p: Dict[str, str], key: str = 'e', neo4_id: str = None):
         attr = r[key]
-        new_entity = Entity(attr[p['id']], {})
+        if neo4_id is None:
+            new_entity = Entity(attr[p['id']], {})
+        else:
+            new_entity = Entity(neo4_id, {})
         for k in attr:
             if k not in [p['id']]:
                 new_entity.extra_attr[k] = attr[k]

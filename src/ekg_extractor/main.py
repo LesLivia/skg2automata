@@ -13,10 +13,11 @@ try:
     driver = conn.get_driver()
     querier = Ekg_Querier(driver)
 
-    entity_label_hierarchy = querier.get_entity_labels_hierarchy()
+    resource = querier.get_resources(1, True)[0]
+    print(resource.entity_id, resource.extra_attr)
 
-    entity = querier.get_entities_by_labels(entity_label_hierarchy[0][0].split('-'), 1, True)[0]
-    print(entity.entity_id)
+    entity = querier.get_items(1, True)[0]
+    print(entity.entity_id, entity.extra_attr)
 
     entity_tree = querier.get_entity_tree(entity.entity_id, EntityForest([]), reverse=True)
 

@@ -4,7 +4,6 @@ import os
 from typing import List, Tuple
 
 from neo4j import Driver, Result
-from tqdm import tqdm
 
 from src.ekg_extractor.model.schema import Event, Entity, Activity
 from src.ekg_extractor.model.semantics import EntityTree, EntityRelationship, EntityForest
@@ -28,8 +27,7 @@ class Ekg_Querier:
     def get_events(self):
         with self.driver.session() as session:
             events_recs: Result = session.run("MATCH (e:{}) RETURN e".format(SCHEMA['event']))
-            return [Event.parse_evt(e, SCHEMA['event_properties']) for e in
-                    tqdm(events_recs.data())]
+            return [Event.parse_evt(e, SCHEMA['event_properties']) for e in events_recs.data()]
 
     def get_unique_events(self):
         all_events = self.get_events()
@@ -54,8 +52,7 @@ class Ekg_Querier:
                                            str(end_t), SCHEMA['event_properties']['timestamp'])
         with self.driver.session() as session:
             events_recs: Result = session.run(query)
-            return [Event.parse_evt(e, SCHEMA['event_properties']) for e in
-                    tqdm(events_recs.data())]
+            return [Event.parse_evt(e, SCHEMA['event_properties']) for e in events_recs.data()]
 
     def get_events_by_date(self, start_t=None, end_t=None):
         query = ""
@@ -84,18 +81,22 @@ class Ekg_Querier:
                                            SCHEMA['event_properties']['date'])
         with self.driver.session() as session:
             events_recs: Result = session.run(query)
-            return [Event.parse_evt(e, SCHEMA['event_properties']) for e in
-                    tqdm(events_recs.data())]
+            return [Event.parse_evt(e, SCHEMA['event_properties']) for e in events_recs.data()]
 
     def get_events_by_entity(self, en_id: str):
-        query = "MATCH (e:{}) - [:{}] - (y:{}) WHERE toString(y.{}) = \"{}\" RETURN e " \
-                "ORDER BY e.{}".format(SCHEMA['event'], SCHEMA['event_to_entity'], SCHEMA['entity'],
-                                       SCHEMA['entity_properties']['id'], en_id,
-                                       SCHEMA['event_properties']['timestamp'])
+        # FIXME: not great, preferable if a property is a primary key for any schema.
+        if SCHEMA['entity_properties']['id'] != 'ID':
+            query = "MATCH (e:{}) - [:{}] - (y:{}) WHERE toString(y.{}) = \"{}\" RETURN e " \
+                    "ORDER BY e.{}".format(SCHEMA['event'], SCHEMA['event_to_entity'], SCHEMA['entity'],
+                                           SCHEMA['entity_properties']['id'], en_id,
+                                           SCHEMA['event_properties']['timestamp'])
+        else:
+            query = "MATCH (e:{}) - [:{}] - (y:{}) WHERE toString(ID(y)) = \"{}\" RETURN e " \
+                    "ORDER BY e.{}".format(SCHEMA['event'], SCHEMA['event_to_entity'], SCHEMA['entity'],
+                                           en_id, SCHEMA['event_properties']['timestamp'])
         with self.driver.session() as session:
             events_recs: Result = session.run(query)
-            return [Event.parse_evt(e, SCHEMA['event_properties']) for e in
-                    tqdm(events_recs.data())]
+            return [Event.parse_evt(e, SCHEMA['event_properties']) for e in events_recs.data()]
 
     def get_events_by_entity_tree(self, tree: EntityTree):
         events: List[Event] = []
@@ -115,13 +116,24 @@ class Ekg_Querier:
 
         with self.driver.session() as session:
             entities = session.run(query)
-            return [Entity.parse_ent(e, SCHEMA['entity_properties']) for e in tqdm(entities.data())]
+            return [Entity.parse_ent(e, SCHEMA['entity_properties']) for e in entities.data()]
 
     def get_entity_by_id(self, entity_id: str):
+        if SCHEMA['entity_properties']['id'] != 'ID':
+            query = "MATCH (e:{}) WHERE toString(e.{}) = \"{}\" RETURN e".format(SCHEMA['entity'],
+                                                                                 SCHEMA['entity_properties']['id'],
+                                                                                 entity_id)
+        else:
+            query = "MATCH (e:{}) WHERE toString(ID(e)) = \"{}\" RETURN e,ID(e)".format(SCHEMA['entity'], entity_id)
+
         with self.driver.session() as session:
-            results = session.run("MATCH (e:{}) WHERE toString(e.{}) = \"{}\" "
-                                  "RETURN e".format(SCHEMA['entity'], SCHEMA['entity_properties']['id'], entity_id))
-            entities = [Entity.parse_ent(e, SCHEMA['entity_properties']) for e in tqdm(results.data())]
+            results = session.run(query)
+            # FIXME: not great, preferable if a property is a primary key for any schema.
+            if SCHEMA['entity_properties']['id'] != 'ID':
+                entities = [Entity.parse_ent(e, SCHEMA['entity_properties']) for e in results.data()]
+            else:
+                entities = [Entity.parse_ent(e, SCHEMA['entity_properties'], neo4_id=e['ID(e)']) for e in
+                            results.data()]
             if len(entities) > 0:
                 return entities[0]
             else:
@@ -133,7 +145,7 @@ class Ekg_Querier:
         else:
             query_filter = "WHERE " + ' and '.join(["e:{}".format(l) for l in labels])
 
-        query = "MATCH (e:{}) {} RETURN e".format(SCHEMA['entity'], query_filter)
+        query = "MATCH (e:{}) {} RETURN ID(e), e".format(SCHEMA['entity'], query_filter)
 
         if random:
             query = query + ', rand() as r ORDER BY r'
@@ -143,7 +155,35 @@ class Ekg_Querier:
 
         with self.driver.session() as session:
             entities = session.run(query)
-            return [Entity.parse_ent(e, SCHEMA['entity_properties']) for e in tqdm(entities.data())]
+            # FIXME: not great, preferable if a property is a primary key for any schema.
+            if SCHEMA['entity_properties']['id'] != 'ID':
+                return [Entity.parse_ent(e, SCHEMA['entity_properties']) for e in entities.data()]
+            else:
+                return [Entity.parse_ent(e, SCHEMA['entity_properties'], neo4_id=e['ID(e)']) for e in entities.data()]
+
+    def get_items(self, limit: int = None, random: bool = False):
+        labels_hierarchy: List[List[str]] = self.get_entity_labels_hierarchy()
+        if 'item' in SCHEMA:
+            labels_seq = [seq for seq in labels_hierarchy if SCHEMA['item'] in seq][0]
+            entities: List[Entity] = []
+            for label in labels_seq:
+                entities.extend(self.get_entities_by_labels(label.split('-'), limit, random))
+            return entities
+        else:
+            return self.get_entities(limit, random)
+
+    def get_resources(self, limit: int = None, random: bool = False):
+        labels_hierarchy: List[List[str]] = self.get_entity_labels_hierarchy()
+        if 'resource' in SCHEMA:
+            unpacked_labels_seq = [[label.split('-') for label in seq if '-' in label] for seq in labels_hierarchy]
+            [labels_hierarchy.extend(labels) for labels in unpacked_labels_seq if len(labels) > 0]
+            labels_seq = [seq for seq in labels_hierarchy if SCHEMA['resource'] in seq][0]
+            entities: List[Entity] = []
+            for label in labels_seq:
+                entities.extend(self.get_entities_by_labels(label.split('-'), limit, random))
+            return entities
+        else:
+            return self.get_entities(limit, random)
 
     def get_entity_labels_hierarchy(self):
         if 'entity_to_entity' not in SCHEMA:
@@ -195,12 +235,13 @@ class Ekg_Querier:
             return trees
 
         if reverse:
-            query_tplt = "MATCH (e1:{}) <- [:{}] - (e2:{}) WHERE toString(e2.{}) = \"{}\" RETURN e1,e2"
+            query_tplt = "MATCH (e1:{}) <- [:{}] - (e2:{}) "
         else:
-            query_tplt = "MATCH (e1:{}) - [:{}] -> (e2:{}) WHERE toString(e2.{}) = \"{}\" RETURN e1,e2"
+            query_tplt = "MATCH (e1:{}) - [:{}] -> (e2:{}) "
 
-        query = query_tplt.format(SCHEMA['entity'], SCHEMA['entity_to_entity'], SCHEMA['entity'],
-                                  SCHEMA['entity_properties']['id'], entity_id)
+        query = query_tplt.format(SCHEMA['entity'], SCHEMA['entity_to_entity'], SCHEMA['entity'])
+        query += "WHERE toString(e2.{}) = \"{}\" RETURN e1,e2".format(SCHEMA['entity_properties']['id'], entity_id)
+
         with self.driver.session() as session:
             results = session.run(query)
             entities: List[Tuple[Entity, Entity]] = [(Entity.parse_ent(r, SCHEMA['entity_properties'], 'e2'),
@@ -225,4 +266,4 @@ class Ekg_Querier:
     def get_activities(self):
         with self.driver.session() as session:
             activities = session.run("MATCH (s:{}) RETURN s".format(SCHEMA['activity']))
-            return [Activity.parse_act(s, SCHEMA['activity_properties']) for s in tqdm(activities.data())]
+            return [Activity.parse_act(s, SCHEMA['activity_properties']) for s in activities.data()]

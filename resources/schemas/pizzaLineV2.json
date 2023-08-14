@@ -19,6 +19,8 @@
   "entity_properties": {
     "id": "sysId"
   },
+  "item": "Pizza",
+  "resource": "Resource",
   "entity_to_entity": "PART_OF",
   "event_to_entity": "ACTS_ON",
   "activity": "Activity",

@@ -3,29 +3,22 @@
   "event_labels": [],
   "event_properties": {
     "act": "activity",
-    "date": "timestampInDatetime",
     "timestamp": "timestamp"
   },
   "entity": "Entity",
   "entity_labels": [
-    "Pizza",
-    "Station"
+    "Kit",
+    "Resource"
   ],
   "entity_properties": {
-    "id": "uID"
+    "id": "code"
   },
-  "item": "Pizza",
-  "resource": "Station",
   "event_to_entity": "CORR",
-  "activity": "Class",
-  "activity_labels": [
-    "Class_station",
-    "Class_sensor"
-  ],
+  "activity": "Activity",
+  "activity_labels": [],
   "activity_properties": {
     "id": [
-      "sensor",
-      "uID"
+      "activity"
     ]
   }
 }
