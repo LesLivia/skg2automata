@@ -19,7 +19,7 @@ try:
     resource = querier.get_resources(limit=1, random=True)[0]
     print(resource.entity_id, resource.extra_attr)
 
-    entity_tree = querier.get_entity_tree(resource.entity_id, EntityForest([]), reverse=True)
+    entity_tree = querier.get_entity_tree(resource.entity_id, EntityForest([]))
 
     events = querier.get_events_by_entity_tree_and_timestamp(entity_tree.trees[0], start_t, end_t, pov='resource')
     for e in events[:10]:

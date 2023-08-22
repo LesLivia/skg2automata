@@ -20,7 +20,7 @@
     "id": "sysId"
   },
   "item": "Pizza",
-  "resource": "Resource",
+  "resource": "Station",
   "entity_to_entity": "PART_OF",
   "event_to_item": "ACTS_ON",
   "event_to_resource": "EXECUTED_BY",

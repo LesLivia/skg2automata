@@ -220,9 +220,7 @@ class Ekg_Querier:
             unpacked_labels_seq = [[label.split('-') for label in seq if '-' in label] for seq in labels_hierarchy]
             [labels_hierarchy.extend(labels) for labels in unpacked_labels_seq if len(labels) > 0]
             labels_seq = [seq for seq in labels_hierarchy if SCHEMA['resource'] in seq][0]
-            entities: List[Entity] = []
-            for label in labels_seq:
-                entities.extend(self.get_entities_by_labels(label.split('-'), limit, random))
+            entities: List[Entity] = self.get_entities_by_labels(labels_seq, limit, random)
             return entities
         else:
             return self.get_entities(limit, random)
