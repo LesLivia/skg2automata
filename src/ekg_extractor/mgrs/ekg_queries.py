@@ -83,25 +83,27 @@ class Ekg_Querier:
             events_recs: Result = session.run(query)
             return [Event.parse_evt(e, SCHEMA['event_properties']) for e in events_recs.data()]
 
-    def get_events_by_entity(self, en_id: str):
-        # FIXME: not great, preferable if a property is a primary key for any schema.
+    def get_events_by_entity(self, en_id: str, pov: str = 'item'):
+        arc = SCHEMA['event_to_item'] if pov.lower() == 'item' else SCHEMA['event_to_resource']
+
+        # FIXME not great, preferable if a property is a primary key for any schema.
         if SCHEMA['entity_properties']['id'] != 'ID':
             query = "MATCH (e:{}) - [:{}] - (y:{}) WHERE toString(y.{}) = \"{}\" RETURN e " \
-                    "ORDER BY e.{}".format(SCHEMA['event'], SCHEMA['event_to_entity'], SCHEMA['entity'],
+                    "ORDER BY e.{}".format(SCHEMA['event'], arc, SCHEMA['entity'],
                                            SCHEMA['entity_properties']['id'], en_id,
                                            SCHEMA['event_properties']['timestamp'])
         else:
             query = "MATCH (e:{}) - [:{}] - (y:{}) WHERE toString(ID(y)) = \"{}\" RETURN e " \
-                    "ORDER BY e.{}".format(SCHEMA['event'], SCHEMA['event_to_entity'], SCHEMA['entity'],
+                    "ORDER BY e.{}".format(SCHEMA['event'], arc, SCHEMA['entity'],
                                            en_id, SCHEMA['event_properties']['timestamp'])
         with self.driver.session() as session:
             events_recs: Result = session.run(query)
             return [Event.parse_evt(e, SCHEMA['event_properties']) for e in events_recs.data()]
 
-    def get_events_by_entity_tree(self, tree: EntityTree):
+    def get_events_by_entity_tree(self, tree: EntityTree, pov: str = 'item'):
         events: List[Event] = []
         for node in tree.nodes:
-            events.extend(self.get_events_by_entity(node.entity_id))
+            events.extend(self.get_events_by_entity(node.entity_id, pov))
         events.sort(key=lambda e: e.timestamp)
         return events
 

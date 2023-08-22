@@ -16,7 +16,8 @@
   },
   "item": "Pizza",
   "resource": "Station",
-  "event_to_entity": "CORR",
+  "event_to_item": "CORR",
+  "event_to_resource": "CORR",
   "activity": "Class",
   "activity_labels": [
     "Class_station",
