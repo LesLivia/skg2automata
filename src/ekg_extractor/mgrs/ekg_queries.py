@@ -100,10 +100,48 @@ class Ekg_Querier:
             events_recs: Result = session.run(query)
             return [Event.parse_evt(e, SCHEMA['event_properties']) for e in events_recs.data()]
 
+    def get_events_by_entity_and_timestamp(self, en_id: str, start_t: int = None, end_t: int = None, pov: str = 'item'):
+        if start_t is None and end_t is None:
+            return self.get_events_by_entity(en_id, pov)
+
+        arc = SCHEMA['event_to_item'] if pov.lower() == 'item' else SCHEMA['event_to_resource']
+
+        timestamp_filter = ""
+        if start_t is not None and end_t is None:
+            timestamp_filter = "e.{} > {}".format(SCHEMA['event_properties']['timestamp'], str(start_t))
+        elif start_t is None and end_t is not None:
+            timestamp_filter = "e.{} < {}".format(SCHEMA['event_properties']['timestamp'], str(end_t))
+        elif start_t is not None and end_t is not None:
+            timestamp_filter = "e.{} > {} and e.{} < {}".format(SCHEMA['event_properties']['timestamp'],
+                                                                str(start_t), SCHEMA['event_properties']['timestamp'],
+                                                                str(end_t))
+
+        # FIXME not great, preferable if a property is a primary key for any schema.
+        if SCHEMA['entity_properties']['id'] != 'ID':
+            query = "MATCH (e:{}) - [:{}] - (y:{}) WHERE {} and toString(y.{}) = \"{}\" RETURN e " \
+                    "ORDER BY e.{}".format(SCHEMA['event'], arc, SCHEMA['entity'], timestamp_filter,
+                                           SCHEMA['entity_properties']['id'], en_id,
+                                           SCHEMA['event_properties']['timestamp'])
+        else:
+            query = "MATCH (e:{}) - [:{}] - (y:{}) WHERE {} and toString(ID(y)) = \"{}\" RETURN e " \
+                    "ORDER BY e.{}".format(SCHEMA['event'], arc, SCHEMA['entity'], timestamp_filter,
+                                           en_id, SCHEMA['event_properties']['timestamp'])
+
+        with self.driver.session() as session:
+            events_recs: Result = session.run(query)
+            return [Event.parse_evt(e, SCHEMA['event_properties']) for e in events_recs.data()]
+
     def get_events_by_entity_tree(self, tree: EntityTree, pov: str = 'item'):
         events: List[Event] = []
         for node in tree.nodes:
             events.extend(self.get_events_by_entity(node.entity_id, pov))
+        events.sort(key=lambda e: e.timestamp)
+        return events
+
+    def get_events_by_entity_tree_and_timestamp(self, tree: EntityTree, start_t: int, end_t: int, pov: str = 'item'):
+        events: List[Event] = []
+        for node in tree.nodes:
+            events.extend(self.get_events_by_entity_and_timestamp(node.entity_id, start_t, end_t, pov))
         events.sort(key=lambda e: e.timestamp)
         return events
 
