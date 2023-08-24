@@ -3,7 +3,8 @@
   "event_labels": [],
   "event_properties": {
     "act": "activity",
-    "timestamp": "timestamp"
+    "timestamp": "timestamp",
+    "date": "timestamp"
   },
   "entity": "Entity",
   "entity_labels": [
@@ -11,9 +12,12 @@
     "Resource"
   ],
   "entity_properties": {
-    "id": "code"
+    "id": "ID"
   },
-  "event_to_entity": "CORR",
+  "item": "Kit",
+  "resource": "Resource",
+  "event_to_item": "CORR",
+  "event_to_resource": "CORR",
   "activity": "Activity",
   "activity_labels": [],
   "activity_properties": {
