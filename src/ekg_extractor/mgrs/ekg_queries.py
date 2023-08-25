@@ -236,9 +236,10 @@ class Ekg_Querier:
             results = session.run(query)
 
             rels: List[Tuple[str, str]] = []
+            IGNORE_LABELS = [SCHEMA['entity'], SCHEMA['version']]
             for res in results.data():
-                rels.append(('-'.join([r for r in res['labels(e1)'] if r != SCHEMA['entity']]),
-                             '-'.join([r for r in res['labels(e2)'] if r != SCHEMA['entity']])))
+                rels.append(('-'.join([r for r in res['labels(e1)'] if r not in IGNORE_LABELS]),
+                             '-'.join([r for r in res['labels(e2)'] if r not in IGNORE_LABELS])))
 
             return EntityTree.get_labels_hierarchy(set(rels))
 

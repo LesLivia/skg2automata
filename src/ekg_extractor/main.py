@@ -13,6 +13,9 @@ try:
     driver = conn.get_driver()
     querier = Ekg_Querier(driver)
 
+    activities = querier.get_activities()
+    print(','.join([a.act for a in activities]))
+
     start_t = 0
     end_t = 30000
 

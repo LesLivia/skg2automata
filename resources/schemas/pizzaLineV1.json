@@ -1,4 +1,5 @@
 {
+  "version": "V1",
   "event": "Event",
   "event_labels": [],
   "event_properties": {
@@ -18,10 +19,8 @@
   "resource": "Station",
   "event_to_item": "CORR",
   "event_to_resource": "CORR",
-  "activity": "Class",
+  "activity": "Class_sensor",
   "activity_labels": [
-    "Class_station",
-    "Class_sensor"
   ],
   "activity_properties": {
     "id": [
