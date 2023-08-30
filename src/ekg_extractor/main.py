@@ -2,7 +2,8 @@ from neo4j.exceptions import AuthError
 
 import src.ekg_extractor.mgrs.db_connector as conn
 from src.ekg_extractor.logger.logger import Logger
-from src.ekg_extractor.mgrs.ekg_queries import Ekg_Querier
+from src.ekg_extractor.mgrs.ekg_queries import Ekg_Querier, SCHEMA
+from src.ekg_extractor.model.schema import Timestamp
 from src.ekg_extractor.model.semantics import EntityForest
 
 LOGGER = Logger('main')
@@ -16,8 +17,12 @@ try:
     activities = querier.get_activities()
     print(','.join([a.act for a in activities]))
 
-    start_t = 0
-    end_t = 30000
+    if 'date' not in SCHEMA['event_properties']:
+        start_t = 0
+        end_t = 30000
+    else:
+        start_t = Timestamp(2022, 1, 1, 0, 0, 0)
+        end_t = Timestamp(2022, 1, 2, 0, 0, 0)
 
     resource = querier.get_resources(limit=1, random=True)[0]
     print(resource.entity_id, resource.extra_attr)

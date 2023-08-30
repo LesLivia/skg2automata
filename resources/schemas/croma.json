@@ -1,5 +1,6 @@
 {
   "event": "Event",
+  "date_format": "ISO8601",
   "event_labels": [],
   "event_properties": {
     "act": "activity",

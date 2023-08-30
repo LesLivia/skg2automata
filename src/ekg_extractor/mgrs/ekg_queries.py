@@ -16,7 +16,8 @@ else:
 config.read('{}/resources/config/config.ini'.format(curr_path))
 config.sections()
 
-SCHEMA_PATH = config['NEO4J SCHEMA']['schema.path'].format(curr_path, config['NEO4J SCHEMA']['schema.name'])
+SCHEMA_NAME = config['NEO4J SCHEMA']['schema.name']
+SCHEMA_PATH = config['NEO4J SCHEMA']['schema.path'].format(curr_path, SCHEMA_NAME)
 SCHEMA = json.load(open(SCHEMA_PATH))
 
 
@@ -57,27 +58,34 @@ class Ekg_Querier:
     def get_events_by_date(self, start_t=None, end_t=None):
         query = ""
 
+        if 'date' not in SCHEMA['event_properties']:
+            return self.get_events_by_timestamp(start_t, end_t)
+
         if start_t is None and end_t is None:
             return self.get_events()
 
-        if 'date' not in SCHEMA['event_properties']:
-            return self.get_events_by_timestamp(start_t, end_t)
-        elif start_t is not None and end_t is None:
-            query = "MATCH (e:{}) WHERE e.{} > datetime({{epochmillis: apoc.date.parse(\"{}\", " \
-                    "\"ms\", \"yyyy-MM-dd hh:mm:ss\")}}) RETURN e " \
-                    "ORDER BY e.{}".format(SCHEMA['event'], SCHEMA['event_properties']['date'], str(start_t),
+        if SCHEMA["date_format"] == 'ISO8601':
+            date_format = "apoc.date.fromISO8601(\"{}\")"
+        else:
+            date_format = "apoc.date.parse(\"{}\", \"ms\", \"" + SCHEMA["date_format"] + "\")"
+
+        if start_t is not None and end_t is None:
+            query = "MATCH (e:{}) WHERE e.{} > datetime({{epochmillis: {}}}) RETURN e " \
+                    "ORDER BY e.{}".format(SCHEMA['event'], SCHEMA['event_properties']['date'],
+                                           date_format.format(start_t.format(SCHEMA["date_format"])),
                                            SCHEMA['event_properties']['date'])
         elif start_t is None and end_t is not None:
-            query = "MATCH (e:{}) WHERE e.{} < datetime({{epochmillis: apoc.date.parse(\"{}\", " \
-                    "\"ms\", \"yyyy-MM-dd hh:mm:ss\")}}) RETURN e " \
-                    "ORDER BY e.{}".format(SCHEMA['event'], SCHEMA['event_properties']['date'], str(end_t),
+            query = "MATCH (e:{}) WHERE e.{} < datetime({{epochmillis: {}}}) RETURN e " \
+                    "ORDER BY e.{}".format(SCHEMA['event'], SCHEMA['event_properties']['date'],
+                                           date_format.format(end_t.format(SCHEMA["date_format"])),
                                            SCHEMA['event_properties']['date'])
         elif start_t is not None and end_t is not None:
-            query = "MATCH (e:{}) where e.{} > datetime({{epochmillis: apoc.date.parse(\"{}\", " \
-                    "\"ms\", \"yyyy-MM-dd hh:mm:ss\")}}) and e.{} < datetime({{epochmillis: apoc.date.parse(\"{}\", " \
-                    "\"ms\", \"yyyy-MM-dd hh:mm:ss\")}}) return e " \
-                    "ORDER BY e.{}".format(SCHEMA['event'], SCHEMA['event_properties']['date'], str(start_t),
-                                           SCHEMA['event_properties']['date'], str(end_t),
+            query = "MATCH (e:{}) where e.{} > datetime({{epochmillis: {}}}) and " \
+                    "e.{} < datetime({{epochmillis: {}}}) return e " \
+                    "ORDER BY e.{}".format(SCHEMA['event'], SCHEMA['event_properties']['date'],
+                                           date_format.format(start_t.format(SCHEMA["date_format"])),
+                                           SCHEMA['event_properties']['date'],
+                                           date_format.format(end_t.format(SCHEMA["date_format"])),
                                            SCHEMA['event_properties']['date'])
         with self.driver.session() as session:
             events_recs: Result = session.run(query)
@@ -100,21 +108,42 @@ class Ekg_Querier:
             events_recs: Result = session.run(query)
             return [Event.parse_evt(e, SCHEMA['event_properties']) for e in events_recs.data()]
 
-    def get_events_by_entity_and_timestamp(self, en_id: str, start_t: int = None, end_t: int = None, pov: str = 'item'):
+    def get_events_by_entity_and_timestamp(self, en_id: str, start_t=None, end_t=None, pov: str = 'item'):
         if start_t is None and end_t is None:
             return self.get_events_by_entity(en_id, pov)
 
         arc = SCHEMA['event_to_item'] if pov.lower() == 'item' else SCHEMA['event_to_resource']
 
         timestamp_filter = ""
-        if start_t is not None and end_t is None:
-            timestamp_filter = "e.{} > {}".format(SCHEMA['event_properties']['timestamp'], str(start_t))
-        elif start_t is None and end_t is not None:
-            timestamp_filter = "e.{} < {}".format(SCHEMA['event_properties']['timestamp'], str(end_t))
-        elif start_t is not None and end_t is not None:
-            timestamp_filter = "e.{} > {} and e.{} < {}".format(SCHEMA['event_properties']['timestamp'],
-                                                                str(start_t), SCHEMA['event_properties']['timestamp'],
-                                                                str(end_t))
+        if 'date' not in SCHEMA['event_properties']:
+            if start_t is not None and end_t is None:
+                timestamp_filter = "e.{} > {}".format(SCHEMA['event_properties']['timestamp'], str(start_t))
+            elif start_t is None and end_t is not None:
+                timestamp_filter = "e.{} < {}".format(SCHEMA['event_properties']['timestamp'], str(end_t))
+            elif start_t is not None and end_t is not None:
+                timestamp_filter = "e.{} > {} and e.{} < {}".format(SCHEMA['event_properties']['timestamp'],
+                                                                    str(start_t),
+                                                                    SCHEMA['event_properties']['timestamp'], str(end_t))
+        else:
+            if SCHEMA["date_format"] == 'ISO8601':
+                date_format = "apoc.date.fromISO8601(\"{}\")"
+            else:
+                date_format = "apoc.date.parse(\"{}\", \"ms\", \"" + SCHEMA["date_format"] + "\")"
+
+            if start_t is not None and end_t is None:
+                timestamp_filter = "e.{} > datetime({{epochmillis: {}}})" \
+                    .format(SCHEMA['event_properties']['timestamp'],
+                            date_format.format(start_t.format(SCHEMA["date_format"])))
+            elif start_t is None and end_t is not None:
+                timestamp_filter = "e.{} < datetime({{epochmillis: {}}})" \
+                    .format(SCHEMA['event_properties']['timestamp'],
+                            date_format.format(end_t.format(SCHEMA["date_format"])))
+            elif start_t is not None and end_t is not None:
+                timestamp_filter = "e.{} > datetime({{epochmillis: {}}}) and e.{} < datetime({{epochmillis: {}}})" \
+                    .format(SCHEMA['event_properties']['timestamp'],
+                            date_format.format(start_t.format(SCHEMA["date_format"])),
+                            SCHEMA['event_properties']['timestamp'],
+                            date_format.format(end_t.format(SCHEMA["date_format"])))
 
         # FIXME not great, preferable if a property is a primary key for any schema.
         if SCHEMA['entity_properties']['id'] != 'ID':
@@ -138,7 +167,7 @@ class Ekg_Querier:
         events.sort(key=lambda e: e.timestamp)
         return events
 
-    def get_events_by_entity_tree_and_timestamp(self, tree: EntityTree, start_t: int, end_t: int, pov: str = 'item'):
+    def get_events_by_entity_tree_and_timestamp(self, tree: EntityTree, start_t, end_t, pov: str = 'item'):
         events: List[Event] = []
         for node in tree.nodes:
             events.extend(self.get_events_by_entity_and_timestamp(node.entity_id, start_t, end_t, pov))

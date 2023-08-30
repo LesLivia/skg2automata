@@ -16,6 +16,13 @@ class Timestamp:
         return '{}-{}-{} {}:{}:{}'.format(self.year, str(self.month).zfill(2), str(self.day).zfill(2),
                                           str(self.hour).zfill(2), str(self.mins).zfill(2), str(self.sec).zfill(2))
 
+    def format(self, d_format: str):
+        if d_format == "ISO8601":
+            return "{}-{}-{}T{}:{}:{}Z".format(self.year, str(self.month).zfill(2), str(self.day).zfill(2),
+                                               str(self.hour).zfill(2), str(self.mins).zfill(2), str(self.sec).zfill(2))
+        else:
+            return str(self)
+
     @staticmethod
     def parse_ts(dt: DateTime):
         return Timestamp(dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second)
