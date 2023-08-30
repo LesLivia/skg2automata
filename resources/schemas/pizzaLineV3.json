@@ -1,5 +1,5 @@
 {
-  "date_format": "yyyy-MM-dd hh:mm:ss",
+  "version": "V3",
   "event": "Event",
   "event_labels": [],
   "event_properties": {
@@ -9,22 +9,27 @@
   "entity": "Entity",
   "entity_labels": [
     "Pizza",
+    "Pack",
+    "Box",
+    "Pallet",
+    "Resource",
+    "MachinePart",
+    "Sensor",
     "Station"
   ],
   "entity_properties": {
-    "id": "uID"
+    "id": "sysId"
   },
   "item": "Pizza",
   "resource": "Station",
-  "event_to_item": "CORR",
-  "event_to_resource": "CORR",
-  "activity": "Class_sensor",
-  "activity_labels": [
-  ],
+  "entity_to_entity": "PART_OF",
+  "event_to_item": "ACTS_ON",
+  "event_to_resource": "EXECUTED_BY",
+  "activity": "Activity",
+  "activity_labels": [],
   "activity_properties": {
     "id": [
-      "sensor",
-      "uID"
+      "activity"
     ]
   }
 }

@@ -94,16 +94,20 @@ class Ekg_Querier:
     def get_events_by_entity(self, en_id: str, pov: str = 'item'):
         arc = SCHEMA['event_to_item'] if pov.lower() == 'item' else SCHEMA['event_to_resource']
 
+        version_filter = ''
+        if 'version' in SCHEMA:
+            version_filter = 'and e:{}'.format(SCHEMA['version'])
+
         # FIXME not great, preferable if a property is a primary key for any schema.
         if SCHEMA['entity_properties']['id'] != 'ID':
-            query = "MATCH (e:{}) - [:{}] - (y:{}) WHERE toString(y.{}) = \"{}\" RETURN e " \
+            query = "MATCH (e:{}) - [:{}] - (y:{}) WHERE toString(y.{}) = \"{}\" {} RETURN e " \
                     "ORDER BY e.{}".format(SCHEMA['event'], arc, SCHEMA['entity'],
-                                           SCHEMA['entity_properties']['id'], en_id,
+                                           SCHEMA['entity_properties']['id'], en_id, version_filter,
                                            SCHEMA['event_properties']['timestamp'])
         else:
-            query = "MATCH (e:{}) - [:{}] - (y:{}) WHERE toString(ID(y)) = \"{}\" RETURN e " \
+            query = "MATCH (e:{}) - [:{}] - (y:{}) WHERE toString(ID(y)) = \"{}\" {} RETURN e " \
                     "ORDER BY e.{}".format(SCHEMA['event'], arc, SCHEMA['entity'],
-                                           en_id, SCHEMA['event_properties']['timestamp'])
+                                           en_id, version_filter, SCHEMA['event_properties']['timestamp'])
         with self.driver.session() as session:
             events_recs: Result = session.run(query)
             return [Event.parse_evt(e, SCHEMA['event_properties']) for e in events_recs.data()]
@@ -213,6 +217,8 @@ class Ekg_Querier:
             return self.get_entities(limit, random)
         else:
             query_filter = "WHERE " + ' and '.join(["e:{}".format(l) for l in labels])
+            if 'version' in SCHEMA:
+                query_filter += ' and e:{}'.format(SCHEMA['version'])
 
         query = "MATCH (e:{}) {} RETURN ID(e), e".format(SCHEMA['entity'], query_filter)
 
@@ -258,9 +264,14 @@ class Ekg_Querier:
         if 'entity_to_entity' not in SCHEMA:
             return [[l] for l in SCHEMA['entity_labels']]
 
-        query = "MATCH (e1:{}) - [:{}] -> (e2:{}) RETURN labels(e1), labels(e2)".format(SCHEMA['entity'],
-                                                                                        SCHEMA['entity_to_entity'],
-                                                                                        SCHEMA['entity'])
+        version_filter = ''
+        if 'version' in SCHEMA:
+            version_filter += 'WHERE e1:{}'.format(SCHEMA['version'])
+
+        query = "MATCH (e1:{}) - [:{}] -> (e2:{}) {} RETURN labels(e1), labels(e2)".format(SCHEMA['entity'],
+                                                                                           SCHEMA['entity_to_entity'],
+                                                                                           SCHEMA['entity'],
+                                                                                           version_filter)
         with self.driver.session() as session:
             results = session.run(query)
 
@@ -304,13 +315,18 @@ class Ekg_Querier:
             trees.add_trees([root_tree])
             return trees
 
+        version_filter = ''
+        if 'version' in SCHEMA:
+            version_filter = ' and e1:{}'.format(SCHEMA['version'])
+
         if reverse:
             query_tplt = "MATCH (e1:{}) <- [:{}] - (e2:{}) "
         else:
             query_tplt = "MATCH (e1:{}) - [:{}] -> (e2:{}) "
 
         query = query_tplt.format(SCHEMA['entity'], SCHEMA['entity_to_entity'], SCHEMA['entity'])
-        query += "WHERE toString(e2.{}) = \"{}\" RETURN e1,e2".format(SCHEMA['entity_properties']['id'], entity_id)
+        query += "WHERE toString(e2.{}) = \"{}\" {} RETURN e1,e2".format(SCHEMA['entity_properties']['id'], entity_id,
+                                                                         version_filter)
 
         with self.driver.session() as session:
             results = session.run(query)
@@ -334,6 +350,10 @@ class Ekg_Querier:
         return trees
 
     def get_activities(self):
+        version_filter = ''
+        if 'version' in SCHEMA:
+            version_filter = "WHERE s:{}".format(SCHEMA['version'])
+
         with self.driver.session() as session:
-            activities = session.run("MATCH (s:{}) RETURN s".format(SCHEMA['activity']))
+            activities = session.run("MATCH (s:{}) {} RETURN s".format(SCHEMA['activity'], version_filter))
             return [Activity.parse_act(s, SCHEMA['activity_properties']) for s in activities.data()]
