@@ -24,6 +24,10 @@ try:
         start_t = Timestamp(2022, 3, 15, 0, 0, 0)
         end_t = Timestamp(2022, 4, 10, 0, 0, 0)
 
+    events = querier.get_events_by_timestamp(start_t, end_t)
+    for e in events:
+        print(e.activity)
+
     resource = querier.get_resources(limit=1, random=True)[0]
     print(resource.entity_id, resource.extra_attr)
 

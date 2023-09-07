@@ -38,19 +38,23 @@ class Ekg_Querier:
     def get_events_by_timestamp(self, start_t: int = None, end_t: int = None):
         query = ""
 
+        version_filter = ''
+        if 'version' in SCHEMA:
+            version_filter = 'and e:{}'.format(SCHEMA['version'])
+
         if start_t is not None and end_t is None:
-            query = "MATCH (e:{}) WHERE e.{} > {} RETURN e " \
+            query = "MATCH (e:{}) WHERE e.{} > {} {} RETURN e " \
                     "ORDER BY e.{}".format(SCHEMA['event'], SCHEMA['event_properties']['timestamp'],
-                                           str(start_t), SCHEMA['event_properties']['timestamp'])
+                                           str(start_t), version_filter, SCHEMA['event_properties']['timestamp'])
         elif start_t is None and end_t is not None:
-            query = "MATCH (e:{}) WHERE e.{} < {} RETURN e " \
+            query = "MATCH (e:{}) WHERE e.{} < {} {} RETURN e " \
                     "ORDER BY e.{}".format(SCHEMA['event'], SCHEMA['event_properties']['timestamp'],
-                                           str(end_t), SCHEMA['event_properties']['timestamp'])
+                                           str(end_t), version_filter, SCHEMA['event_properties']['timestamp'])
         elif start_t is not None and end_t is not None:
-            query = "MATCH (e:{}) where e.{} > {} and e.{} < {} return e " \
+            query = "MATCH (e:{}) where e.{} > {} and e.{} < {} {} return e " \
                     "ORDER BY e.{}".format(SCHEMA['event'], SCHEMA['event_properties']['timestamp'],
                                            str(start_t), SCHEMA['event_properties']['timestamp'],
-                                           str(end_t), SCHEMA['event_properties']['timestamp'])
+                                           str(end_t), version_filter, SCHEMA['event_properties']['timestamp'])
         with self.driver.session() as session:
             events_recs: Result = session.run(query)
             return [Event.parse_evt(e, SCHEMA['event_properties']) for e in events_recs.data()]
@@ -64,28 +68,32 @@ class Ekg_Querier:
         if start_t is None and end_t is None:
             return self.get_events()
 
+        version_filter = ''
+        if 'version' in SCHEMA:
+            version_filter = 'and e:{}'.format(SCHEMA['version'])
+
         if SCHEMA["date_format"] == 'ISO8601':
             date_format = "apoc.date.fromISO8601(\"{}\")"
         else:
             date_format = "apoc.date.parse(\"{}\", \"ms\", \"" + SCHEMA["date_format"] + "\")"
 
         if start_t is not None and end_t is None:
-            query = "MATCH (e:{}) WHERE e.{} > datetime({{epochmillis: {}}}) RETURN e " \
+            query = "MATCH (e:{}) WHERE e.{} > datetime({{epochmillis: {}}}) {} RETURN e " \
                     "ORDER BY e.{}".format(SCHEMA['event'], SCHEMA['event_properties']['date'],
-                                           date_format.format(start_t.format(SCHEMA["date_format"])),
+                                           date_format.format(start_t.format(SCHEMA["date_format"])), version_filter,
                                            SCHEMA['event_properties']['date'])
         elif start_t is None and end_t is not None:
-            query = "MATCH (e:{}) WHERE e.{} < datetime({{epochmillis: {}}}) RETURN e " \
+            query = "MATCH (e:{}) WHERE e.{} < datetime({{epochmillis: {}}}) {} RETURN e " \
                     "ORDER BY e.{}".format(SCHEMA['event'], SCHEMA['event_properties']['date'],
-                                           date_format.format(end_t.format(SCHEMA["date_format"])),
+                                           date_format.format(end_t.format(SCHEMA["date_format"])), version_filter,
                                            SCHEMA['event_properties']['date'])
         elif start_t is not None and end_t is not None:
             query = "MATCH (e:{}) where e.{} > datetime({{epochmillis: {}}}) and " \
-                    "e.{} < datetime({{epochmillis: {}}}) return e " \
+                    "e.{} < datetime({{epochmillis: {}}}) {} RETURN e " \
                     "ORDER BY e.{}".format(SCHEMA['event'], SCHEMA['event_properties']['date'],
                                            date_format.format(start_t.format(SCHEMA["date_format"])),
                                            SCHEMA['event_properties']['date'],
-                                           date_format.format(end_t.format(SCHEMA["date_format"])),
+                                           date_format.format(end_t.format(SCHEMA["date_format"])), version_filter,
                                            SCHEMA['event_properties']['date'])
         with self.driver.session() as session:
             events_recs: Result = session.run(query)
