@@ -1,0 +1,29 @@
+{
+  "date_format": "yyyy-MM-dd hh:mm:ss",
+  "event": "Event",
+  "event_labels": [],
+  "event_properties": {
+    "act": "activity",
+    "timestamp": "time"
+  },
+  "entity": "Entity",
+  "entity_labels": [
+    "Part",
+    "Station"
+  ],
+  "entity_properties": {
+    "id": "sysId"
+  },
+  "item": "Part",
+  "resource": "Station",
+  "event_to_item": "ACTS_ON",
+  "event_to_resource": "OBSERVED_AT",
+  "activity": "Activity",
+  "activity_labels": [
+  ],
+  "activity_properties": {
+    "id": [
+      "activity"
+    ]
+  }
+}
