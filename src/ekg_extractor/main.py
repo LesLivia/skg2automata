@@ -42,7 +42,7 @@ try:
 
     entity_tree = querier.get_entity_tree(entity.entity_id, EntityForest([]), reverse=True)
 
-    events = querier.get_events_by_entity_tree(entity_tree.trees[0], pov='item')
+    events = querier.get_events_by_entity_tree_and_timestamp(entity_tree.trees[0], start_t, end_t, pov='item')
     for e in events:
         print(e.activity, e.timestamp)
 

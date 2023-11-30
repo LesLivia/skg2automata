@@ -18,7 +18,7 @@
   "item": "Part",
   "resource": "Station",
   "event_to_item": "ACTS_ON",
-  "event_to_resource": "OBSERVED_AT",
+  "event_to_resource": "OCCURRED_AT",
   "activity": "Activity",
   "activity_labels": [
   ],
