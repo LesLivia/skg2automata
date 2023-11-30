@@ -111,5 +111,5 @@ class Activity:
                 break
         for k in attr:
             if k not in [p['id']]:
-                new_activity.extra_attr[k] = attr[k]
+                new_activity.act += '_' + attr[k]
         return new_activity
