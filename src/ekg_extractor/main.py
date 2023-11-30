@@ -21,10 +21,10 @@ try:
         start_t = 0
         end_t = 30000
     else:
-        start_t = Timestamp(2022, 3, 15, 0, 0, 0)
-        end_t = Timestamp(2022, 4, 10, 0, 0, 0)
+        start_t = Timestamp(2023, 11, 4, 13, 0, 0)
+        end_t = Timestamp(2023, 11, 4, 14, 30, 0)
 
-    events = querier.get_events_by_timestamp(start_t, end_t)
+    events = querier.get_events_by_date(start_t, end_t)
     for e in events:
         print(e.activity)
 
