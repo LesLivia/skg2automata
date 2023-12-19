@@ -107,7 +107,7 @@ class Activity:
         new_activity: Activity = Activity('', {})
         for key in p['id']:
             if key in attr:
-                new_activity.act += '_' + attr[key]
+                new_activity.act += attr[key]
         for k in attr:
             if k not in [p['id']]:
                 new_activity.extra_attr[k] = attr[k]

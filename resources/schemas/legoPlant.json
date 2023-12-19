@@ -4,8 +4,8 @@
   "event_labels": [],
   "event_properties": {
     "act": "activity",
-    "timestamp": "time",
-    "date": "time"
+    "timestamp": "timestamp",
+    "date": "timestamp"
   },
   "entity": "Entity",
   "entity_labels": [
@@ -24,8 +24,7 @@
   ],
   "activity_properties": {
     "id": [
-      "activity",
-      "station_id"
+      "activity"
     ]
   }
 }
