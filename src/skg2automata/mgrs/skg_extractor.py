@@ -5,14 +5,14 @@ from typing import List, Tuple
 
 from neo4j import Driver, Result
 
-from src.ekg_extractor.model.schema import Event, Entity, Activity
-from src.ekg_extractor.model.semantics import EntityTree, EntityRelationship, EntityForest
+from src.skg2automata.model.schema import Event, Entity, Activity
+from src.skg2automata.model.semantics import EntityTree, EntityRelationship, EntityForest
 
 config = configparser.ConfigParser()
 if 'submodules' in os.listdir():
-    curr_path = os.getcwd() + '/submodules/ekg_extractor'
+    curr_path = os.getcwd() + '/submodules/skg2automata'
 else:
-    curr_path = os.getcwd().split('src/ekg_extractor')[0]
+    curr_path = os.getcwd().split('src/skg2automata')[0]
 config.read('{}/resources/config/config.ini'.format(curr_path))
 config.sections()
 
@@ -21,7 +21,7 @@ SCHEMA_PATH = config['NEO4J SCHEMA']['schema.path'].format(curr_path, SCHEMA_NAM
 SCHEMA = json.load(open(SCHEMA_PATH))
 
 
-class Ekg_Querier:
+class Skg_Extractor:
     def __init__(self, driver: Driver):
         self.driver = driver
 

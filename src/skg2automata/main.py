@@ -1,10 +1,10 @@
 from neo4j.exceptions import AuthError
 
-import src.ekg_extractor.mgrs.db_connector as conn
-from src.ekg_extractor.logger.logger import Logger
-from src.ekg_extractor.mgrs.ekg_queries import Ekg_Querier, SCHEMA
-from src.ekg_extractor.model.schema import Timestamp
-from src.ekg_extractor.model.semantics import EntityForest
+import src.skg2automata.mgrs.skg_connector as conn
+from src.skg2automata.logger.logger import Logger
+from src.skg2automata.mgrs.skg_extractor import Skg_Extractor, SCHEMA
+from src.skg2automata.model.schema import Timestamp
+from src.skg2automata.model.semantics import EntityForest
 
 LOGGER = Logger('main')
 
@@ -12,7 +12,7 @@ LOGGER.info('Starting...')
 
 try:
     driver = conn.get_driver()
-    querier = Ekg_Querier(driver)
+    querier = Skg_Extractor(driver)
 
     activities = querier.get_activities()
     print(','.join([a.act for a in activities]))

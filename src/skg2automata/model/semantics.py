@@ -1,7 +1,7 @@
 from typing import List, Dict, Set, Tuple
 
-from src.ekg_extractor.logger.logger import Logger
-from src.ekg_extractor.model.schema import Entity
+from src.skg2automata.logger.logger import Logger
+from src.skg2automata.model.schema import Entity
 
 LOGGER = Logger('EntityTree Mgr')
 
