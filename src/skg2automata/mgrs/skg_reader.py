@@ -21,7 +21,7 @@ SCHEMA_PATH = config['NEO4J SCHEMA']['schema.path'].format(curr_path, SCHEMA_NAM
 SCHEMA = json.load(open(SCHEMA_PATH))
 
 
-class Skg_Extractor:
+class Skg_Reader:
     def __init__(self, driver: Driver):
         self.driver = driver
 

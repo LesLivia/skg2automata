@@ -2,7 +2,8 @@ from neo4j.exceptions import AuthError
 
 import src.skg2automata.mgrs.skg_connector as conn
 from src.skg2automata.logger.logger import Logger
-from src.skg2automata.mgrs.skg_extractor import Skg_Extractor, SCHEMA
+from src.skg2automata.mgrs.skg_reader import Skg_Reader, SCHEMA
+from src.skg2automata.mgrs.skg_writer import Skg_Writer
 from src.skg2automata.model.schema import Timestamp
 from src.skg2automata.model.semantics import EntityForest
 
@@ -12,9 +13,9 @@ LOGGER.info('Starting...')
 
 try:
     driver = conn.get_driver()
-    querier = Skg_Extractor(driver)
+    reader = Skg_Reader(driver)
 
-    activities = querier.get_activities()
+    activities = reader.get_activities()
     print(','.join([a.act for a in activities]))
 
     if 'date' not in SCHEMA['event_properties']:
@@ -24,27 +25,29 @@ try:
         start_t = Timestamp(2023, 11, 4, 13, 0, 0)
         end_t = Timestamp(2023, 11, 4, 14, 30, 0)
 
-    events = querier.get_events_by_date(start_t, end_t)
+    events = reader.get_events_by_date(start_t, end_t)
     for e in events:
         print(e.activity)
 
-    resource = querier.get_resources(limit=1, random=True)[0]
+    resource = reader.get_resources(limit=1, random=True)[0]
     print(resource.entity_id, resource.extra_attr)
 
-    entity_tree = querier.get_entity_tree(resource.entity_id, EntityForest([]))
+    entity_tree = reader.get_entity_tree(resource.entity_id, EntityForest([]))
 
-    events = querier.get_events_by_entity_tree_and_timestamp(entity_tree.trees[0], start_t, end_t, pov='resource')
+    events = reader.get_events_by_entity_tree_and_timestamp(entity_tree.trees[0], start_t, end_t, pov='resource')
     for e in events:
         print(e.activity, e.timestamp)
 
-    entity = querier.get_items(limit=1, random=True)[0]
+    entity = reader.get_items(limit=1, random=True)[0]
     print(entity.entity_id, entity.extra_attr)
 
-    entity_tree = querier.get_entity_tree(entity.entity_id, EntityForest([]), reverse=True)
+    entity_tree = reader.get_entity_tree(entity.entity_id, EntityForest([]), reverse=True)
 
-    events = querier.get_events_by_entity_tree_and_timestamp(entity_tree.trees[0], start_t, end_t, pov='item')
+    events = reader.get_events_by_entity_tree_and_timestamp(entity_tree.trees[0], start_t, end_t, pov='item')
     for e in events:
         print(e.activity, e.timestamp)
+
+    writer = Skg_Writer(driver)
 
     conn.close_connection(driver)
     LOGGER.info('EKG querying done.')
