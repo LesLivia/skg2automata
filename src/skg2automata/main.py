@@ -48,8 +48,10 @@ try:
         print(e.activity, e.timestamp)
 
     writer = Skg_Writer(driver)
+    writer.write_automaton()
+    writer.cleanup()
 
     conn.close_connection(driver)
-    LOGGER.info('EKG querying done.')
+    LOGGER.info('Testing complete.')
 except AuthError:
     LOGGER.error('Connection to DB could not be established.')

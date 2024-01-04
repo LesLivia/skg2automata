@@ -1,0 +1,17 @@
+{
+  "automaton_label": "Automaton",
+  "automaton_attr": {
+    "name": "name"
+  },
+  "has": "HAS",
+  "location_label": "AutomatonLocation",
+  "location_attr": {
+    "name": "name"
+  },
+  "edge_label": "AutomatonEdge",
+  "edge_attr": {
+    "event": "event"
+  },
+  "edge_to_source": "SOURCE",
+  "edge_to_target": "TARGET"
+}
