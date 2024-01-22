@@ -49,7 +49,7 @@ try:
 
     writer = Skg_Writer(driver)
     writer.write_automaton()
-    writer.cleanup()
+    writer.cleanup('test')
 
     conn.close_connection(driver)
     LOGGER.info('Testing complete.')

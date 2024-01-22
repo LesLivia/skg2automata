@@ -1,9 +1,10 @@
 {
   "automaton_label": "Automaton",
+  "automaton_feature": "AutomatonFeature",
   "automaton_attr": {
     "name": "name"
   },
-  "has": "HAS",
+  "has": "IS_PART_OF",
   "location_label": "AutomatonLocation",
   "location_attr": {
     "name": "name"

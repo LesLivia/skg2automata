@@ -47,11 +47,11 @@ class Skg_Writer:
         LOCATION_QUERY = """
             MATCH (a: {})
             WHERE a.{} = \"{}\"
-            CREATE (l:{} {{ {}: \"{}\" }}) <-[:{}]- (a)
+            CREATE (l:{}:{} {{ {}: \"{}\" }}) -[:{}]-> (a)
         """
         for location in automaton.locations:
             query = LOCATION_QUERY.format(LABELS['automaton_label'], LABELS['automaton_attr']['name'],
-                                          AUTOMATON_NAME, LABELS['location_label'],
+                                          AUTOMATON_NAME, LABELS['location_label'], LABELS['automaton_feature'],
                                           LABELS['location_attr']['name'], location.name, LABELS['has'])
             with self.driver.session() as session:
                 session.run(query)
@@ -60,8 +60,8 @@ class Skg_Writer:
         EDGE_TO_LOC_QUERY = """
             MATCH (s:{}), (t:{}), (a:{})
             WHERE s.{} = \"{}\" and t.{} = \"{}\" and a.{} = \"{}\"
-            CREATE (s) <-[:{}]- (e:{} {{ {}: \"{}\" }}) -[:{}]-> (t)
-            CREATE (a) -[:{}]-> (e)
+            CREATE (s) -[:{}]-> (e:{}:{} {{ {}: \"{}\" }}) -[:{}]-> (t)
+            CREATE (a) <-[:{}]- (e)
         """
         for edge in automaton.edges:
             query = EDGE_TO_LOC_QUERY.format(LABELS['location_label'], LABELS['location_label'],
@@ -70,13 +70,13 @@ class Skg_Writer:
                                              LABELS['location_attr']['name'], edge.target.name,
                                              LABELS['automaton_attr']['name'], AUTOMATON_NAME,
                                              LABELS['edge_to_source'], LABELS['edge_label'],
-                                             LABELS['edge_attr']['event'], edge.label, LABELS['edge_to_target'],
-                                             LABELS['has'])
+                                             LABELS['automaton_feature'], LABELS['edge_attr']['event'],
+                                             edge.label, LABELS['edge_to_target'], LABELS['has'])
             with self.driver.session() as session:
                 session.run(query)
         LOGGER.info("Created Edge nodes.")
 
-    def cleanup(self):
+    def cleanup_all(self):
         DELETE_QUERY = """
         MATCH (x: {})
         DETACH DELETE x
@@ -96,3 +96,31 @@ class Skg_Writer:
         with self.driver.session() as session:
             session.run(query)
         LOGGER.info("Deleted all edge nodes.")
+
+    def cleanup(self, automaton_name: str = None):
+        if automaton_name is None:
+            self.cleanup_all()
+        else:
+            DELETE_QUERY = """
+            MATCH (s:{}) -[:{}]-> (a:{}) 
+            WHERE a.{} = \"{}\"
+            DETACH DELETE s
+            """
+
+            query = DELETE_QUERY.format(LABELS['automaton_feature'], LABELS['has'], LABELS['automaton_label'],
+                                        LABELS['automaton_attr']['name'], automaton_name)
+            with self.driver.session() as session:
+                session.run(query)
+            LOGGER.info("Deletes {} features.".format(automaton_name))
+
+            DELETE_QUERY = """
+            MATCH (a: {})
+            WHERE a.{} = \"{}\"
+            DETACH DELETE a
+            """
+
+            query = DELETE_QUERY.format(LABELS['automaton_label'],
+                                        LABELS['automaton_attr']['name'], automaton_name)
+            with self.driver.session() as session:
+                session.run(query)
+            LOGGER.info("Delete {} node.".format(automaton_name))
