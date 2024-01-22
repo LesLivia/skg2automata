@@ -16,7 +16,8 @@ class Edge:
 
 
 class Automaton:
-    def __init__(self, filename=None):
+    def __init__(self, name: str, filename=None):
+        self.name = name
         self.locations: List[Location] = []
         self.edges: List[Edge] = []
 

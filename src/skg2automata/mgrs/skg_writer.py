@@ -5,7 +5,8 @@ import os
 from neo4j import Driver
 
 from src.skg2automata.logger.logger import Logger
-from src.skg2automata.model.automata import Automaton
+from src.skg2automata.model.automata import Automaton, Edge, Location
+from src.skg2automata.model.schema import Activity, Entity
 
 config = configparser.ConfigParser()
 if 'submodules' in os.listdir():
@@ -33,10 +34,11 @@ class Skg_Writer:
 
     def write_automaton(self):
         LOGGER.info('Loading {}...'.format(AUTOMATON_PATH))
-        automaton = Automaton(filename=AUTOMATON_PATH)
-        LOGGER.info('Found {} locations, {} edges.'.format(len(automaton.locations), len(automaton.edges)))
 
         AUTOMATON_NAME = AUTOMATON_PATH.split('/')[-1].split('.')[0]
+        automaton = Automaton(name=AUTOMATON_NAME, filename=AUTOMATON_PATH)
+        LOGGER.info('Found {} locations, {} edges.'.format(len(automaton.locations), len(automaton.edges)))
+
         AUTOMATON_QUERY = """
             CREATE (a:{} {{ {}: \"{}\" }})
         """.format(LABELS['automaton_label'], LABELS['automaton_attr']['name'], AUTOMATON_NAME)
@@ -75,6 +77,8 @@ class Skg_Writer:
             with self.driver.session() as session:
                 session.run(query)
         LOGGER.info("Created Edge nodes.")
+
+        return automaton
 
     def cleanup_all(self):
         DELETE_QUERY = """
@@ -124,3 +128,25 @@ class Skg_Writer:
             with self.driver.session() as session:
                 session.run(query)
             LOGGER.info("Delete {} node.".format(automaton_name))
+
+    def create_semantic_link(self, automaton: Automaton, name: str, edge: Edge = None, loc: Location = None,
+                             act: Activity = None, ent: Entity = None):
+
+        if edge is not None:
+            CREATE_QUERY = """
+            MATCH (s:{}) -[:{}]-> (e:{}) -[:{}]-> (t:{}) -[:{}]-> (aut:{}), (a:{})
+            WHERE s.{} = \"{}\" and e.{} = \"{}\" and t.{} = \"{}\" and aut.{} = \"{}\" and a.{} = \"{}\"
+            CREATE (e) -[:{}]-> (a) 
+            """
+            query = CREATE_QUERY.format(LABELS['location_label'], LABELS['edge_to_source'],
+                                        LABELS['edge_label'], LABELS['edge_to_target'],
+                                        LABELS['location_label'], LABELS['has'],
+                                        LABELS['automaton_label'], SCHEMA['activity'],
+                                        LABELS['location_attr']['name'], edge.source.name,
+                                        LABELS['edge_attr']['event'], edge.label,
+                                        LABELS['location_attr']['name'], edge.target.name,
+                                        LABELS['automaton_attr']['name'], automaton.name,
+                                        SCHEMA['activity_properties']['id'][0], act.act, name
+                                        )
+            with self.driver.session() as session:
+                session.run(query)

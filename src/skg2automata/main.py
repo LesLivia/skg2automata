@@ -48,7 +48,8 @@ try:
         print(e.activity, e.timestamp)
 
     writer = Skg_Writer(driver)
-    writer.write_automaton()
+    automaton = writer.write_automaton()
+    # writer.create_semantic_link(automaton, name='LABELED_BY', edge=automaton.edges[0], act=activities[0])
     writer.cleanup('test')
 
     conn.close_connection(driver)
