@@ -15,6 +15,13 @@
   "entity_properties": {
     "id": "sysId"
   },
+  "custom_entity_to_entity": [
+    {
+      "from": "Sensor",
+      "to": "Station",
+      "name": "PART_OF"
+    }
+  ],
   "item": "Part",
   "resource": "Station",
   "event_to_item": "ACTS_ON",

@@ -365,3 +365,40 @@ class Skg_Reader:
         with self.driver.session() as session:
             activities = session.run("MATCH (s:{}) {} RETURN s".format(SCHEMA['activity'], version_filter))
             return [Activity.parse_act(s, SCHEMA['activity_properties']) for s in activities.data()]
+
+    def get_related_entities(self, entity_from: str = None, entity_to: str = None,
+                             limit: int = None, random: bool = False):
+        query = ""
+        if entity_from is None:
+            query += 'MATCH (e1:{})'.format(SCHEMA['Entity'])
+        else:
+            query += 'MATCH (e1:{})'.format(entity_from)
+
+        if entity_from is None or entity_to is None:
+            query += ' -> '
+        else:
+            for rels in SCHEMA['custom_entity_to_entity']:
+                if rels['from'] == entity_from and rels['to'] == entity_to:
+                    query += ' -[:{}]-> '.format(rels['name'])
+                    break
+
+        if entity_to is None:
+            query += ' (e2:{}) '.format(SCHEMA['Entity'])
+        else:
+            query += ' (e2:{}) '.format(entity_to)
+
+        query += 'RETURN e1,e2'
+
+        if random:
+            query += ',rand() as r ORDER BY r'
+
+        if limit is not None:
+            query += ' LIMIT {}'.format(limit)
+
+        with self.driver.session() as session:
+            results = session.run(query)
+            entities: List[Tuple[Entity, Entity]] = [(Entity.parse_ent(r, SCHEMA['entity_properties'], 'e2'),
+                                                      Entity.parse_ent(r, SCHEMA['entity_properties'], 'e1'))
+                                                     for r in results.data()]
+
+        return entities
