@@ -164,6 +164,17 @@ class Skg_Writer:
                                             LABELS['location_attr']['name'], edge.target.name,
                                             LABELS['automaton_attr']['name'], automaton.name,
                                             SCHEMA['entity_properties']['id'], ent.entity_id, name)
+        elif loc is not None:
+            CREATE_QUERY = """
+            MATCH (l:{}) -[:{}]-> (aut:{}), (ent:{})
+            WHERE l.{} = \"{}\" and aut.{} = \"{}\" and ent.{} = \"{}\"
+            CREATE (l) -[:{}]-> (ent) 
+            """
+            query = CREATE_QUERY.format(LABELS['location_label'], LABELS['has'],
+                                        LABELS['automaton_label'], ':'.join(entity_labels),
+                                        LABELS['location_attr']['name'], loc.name,
+                                        LABELS['automaton_attr']['name'], automaton.name,
+                                        SCHEMA['entity_properties']['id'], ent.entity_id, name)
 
-            with self.driver.session() as session:
-                session.run(query)
+        with self.driver.session() as session:
+            session.run(query)
