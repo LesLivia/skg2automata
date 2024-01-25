@@ -1,6 +1,7 @@
 import configparser
 import json
 import os
+from typing import List
 
 from neo4j import Driver
 
@@ -130,23 +131,39 @@ class Skg_Writer:
             LOGGER.info("Delete {} node.".format(automaton_name))
 
     def create_semantic_link(self, automaton: Automaton, name: str, edge: Edge = None, loc: Location = None,
-                             act: Activity = None, ent: Entity = None):
+                             act: Activity = None, ent: Entity = None, entity_labels: List[str] = None):
 
         if edge is not None:
-            CREATE_QUERY = """
-            MATCH (s:{}) -[:{}]-> (e:{}) -[:{}]-> (t:{}) -[:{}]-> (aut:{}), (a:{})
-            WHERE s.{} = \"{}\" and e.{} = \"{}\" and t.{} = \"{}\" and aut.{} = \"{}\" and a.{} = \"{}\"
-            CREATE (e) -[:{}]-> (a) 
-            """
-            query = CREATE_QUERY.format(LABELS['location_label'], LABELS['edge_to_source'],
-                                        LABELS['edge_label'], LABELS['edge_to_target'],
-                                        LABELS['location_label'], LABELS['has'],
-                                        LABELS['automaton_label'], SCHEMA['activity'],
-                                        LABELS['location_attr']['name'], edge.source.name,
-                                        LABELS['edge_attr']['event'], edge.label,
-                                        LABELS['location_attr']['name'], edge.target.name,
-                                        LABELS['automaton_attr']['name'], automaton.name,
-                                        SCHEMA['activity_properties']['id'][0], act.act, name
-                                        )
+            if act is not None:
+                CREATE_QUERY = """
+                MATCH (s:{}) -[:{}]-> (e:{}) -[:{}]-> (t:{}) -[:{}]-> (aut:{}), (a:{})
+                WHERE s.{} = \"{}\" and e.{} = \"{}\" and t.{} = \"{}\" and aut.{} = \"{}\" and a.{} = \"{}\"
+                CREATE (e) -[:{}]-> (a) 
+                """
+                query = CREATE_QUERY.format(LABELS['location_label'], LABELS['edge_to_source'],
+                                            LABELS['edge_label'], LABELS['edge_to_target'],
+                                            LABELS['location_label'], LABELS['has'],
+                                            LABELS['automaton_label'], SCHEMA['activity'],
+                                            LABELS['location_attr']['name'], edge.source.name,
+                                            LABELS['edge_attr']['event'], edge.label,
+                                            LABELS['location_attr']['name'], edge.target.name,
+                                            LABELS['automaton_attr']['name'], automaton.name,
+                                            SCHEMA['activity_properties']['id'][0], act.act, name)
+            elif ent is not None:
+                CREATE_QUERY = """
+                MATCH (s:{}) -[:{}]-> (e:{}) -[:{}]-> (t:{}) -[:{}]-> (aut:{}), (ent:{})
+                WHERE s.{} = \"{}\" and e.{} = \"{}\" and t.{} = \"{}\" and aut.{} = \"{}\" and ent.{} = \"{}\"
+                CREATE (e) -[:{}]-> (ent) 
+                """
+                query = CREATE_QUERY.format(LABELS['location_label'], LABELS['edge_to_source'],
+                                            LABELS['edge_label'], LABELS['edge_to_target'],
+                                            LABELS['location_label'], LABELS['has'],
+                                            LABELS['automaton_label'], ':'.join(entity_labels),
+                                            LABELS['location_attr']['name'], edge.source.name,
+                                            LABELS['edge_attr']['event'], edge.label,
+                                            LABELS['location_attr']['name'], edge.target.name,
+                                            LABELS['automaton_attr']['name'], automaton.name,
+                                            SCHEMA['entity_properties']['id'], ent.entity_id, name)
+
             with self.driver.session() as session:
                 session.run(query)

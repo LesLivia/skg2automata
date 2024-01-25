@@ -49,7 +49,9 @@ try:
 
     writer = Skg_Writer(driver)
     automaton = writer.write_automaton()
-    # writer.create_semantic_link(automaton, name='LABELED_BY', edge=automaton.edges[0], act=activities[0])
+    sensors = reader.get_entities_by_labels(['Sensor'])
+    # writer.create_semantic_link(automaton, name='LABELED_BY', edge=automaton.edges[0],
+    #                            ent=sensors[0], entity_labels=['Sensor'])
     writer.cleanup('test')
 
     conn.close_connection(driver)
