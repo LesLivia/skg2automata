@@ -367,6 +367,7 @@ class Skg_Reader:
             return [Activity.parse_act(s, SCHEMA['activity_properties']) for s in activities.data()]
 
     def get_related_entities(self, entity_from: str = None, entity_to: str = None,
+                             filter1: str = None, filter2: str = None,
                              limit: int = None, random: bool = False):
         query = ""
         if entity_from is None:
@@ -386,6 +387,15 @@ class Skg_Reader:
             query += ' (e2:{}) '.format(SCHEMA['Entity'])
         else:
             query += ' (e2:{}) '.format(entity_to)
+
+        if filter1 is not None:
+            query += ' WHERE e1.{}=\"{}\" '.format(SCHEMA['entity_properties']['id'], filter1)
+
+        if filter1 is None and filter2 is not None:
+            query += ' WHERE e2.{}=\"{}\" '.format(SCHEMA['entity_properties']['id'], filter2)
+        elif filter1 is not None and filter2 is not None:
+            if filter1 is not None:
+                query += ' and e2.{}=\"{}\" '.format(SCHEMA['entity_properties']['id'], filter1)
 
         query += 'RETURN e1,e2'
 

@@ -50,7 +50,7 @@ try:
     writer = Skg_Writer(driver)
     # automaton = writer.write_automaton()
     sensors = reader.get_entities_by_labels(['Sensor'])
-    entities = reader.get_related_entities('Sensor', 'Station', 1, True)
+    entities = reader.get_related_entities('Sensor', 'Station', filter1='1', limit=1, random=True)
     # writer.create_semantic_link(automaton, name='LABELED_BY', edge=automaton.edges[0],
     #                            ent=sensors[0], entity_labels=['Sensor'])
     writer.cleanup('test')
