@@ -272,8 +272,10 @@ class Skg_Reader:
         if 'entity_to_entity' not in SCHEMA:
             return [[l] for l in SCHEMA['entity_labels']]
 
+        IGNORE_LABELS = [SCHEMA['entity']]
         version_filter = ''
         if 'version' in SCHEMA:
+            IGNORE_LABELS.append(SCHEMA['version'])
             version_filter += 'WHERE e1:{}'.format(SCHEMA['version'])
 
         query = "MATCH (e1:{}) - [:{}] -> (e2:{}) {} RETURN labels(e1), labels(e2)".format(SCHEMA['entity'],
@@ -284,7 +286,6 @@ class Skg_Reader:
             results = session.run(query)
 
             rels: List[Tuple[str, str]] = []
-            IGNORE_LABELS = [SCHEMA['entity'], SCHEMA['version']]
             for res in results.data():
                 rels.append(('-'.join([r for r in res['labels(e1)'] if r not in IGNORE_LABELS]),
                              '-'.join([r for r in res['labels(e2)'] if r not in IGNORE_LABELS])))
