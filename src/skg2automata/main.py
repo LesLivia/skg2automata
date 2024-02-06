@@ -48,14 +48,14 @@ try:
         print(e.activity, e.timestamp)
 
     writer = Skg_Writer(driver)
-    # automaton = writer.write_automaton()
+    automaton = writer.write_automaton()
     sensors = reader.get_entities_by_labels(['Sensor'])
     entities = reader.get_related_entities('Sensor', 'Station', filter1='S4', limit=1, random=True)
     for tup in entities:
         print(tup[0].entity_id, tup[1].entity_id)
     # writer.create_semantic_link(automaton, name='LABELED_BY', edge=automaton.edges[0],
     #                            ent=sensors[0], entity_labels=['Sensor'])
-    # writer.cleanup('')
+    writer.cleanup('')
 
     conn.close_connection(driver)
     LOGGER.info('Testing complete.')

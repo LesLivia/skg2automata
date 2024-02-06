@@ -116,7 +116,7 @@ class Skg_Writer:
                                         LABELS['automaton_attr']['name'], automaton_name)
             with self.driver.session() as session:
                 session.run(query)
-            LOGGER.info("Deletes {} features.".format(automaton_name))
+            LOGGER.info("Deleted {} features.".format(automaton_name))
 
             DELETE_QUERY = """
             MATCH (a: {})
@@ -128,7 +128,7 @@ class Skg_Writer:
                                         LABELS['automaton_attr']['name'], automaton_name)
             with self.driver.session() as session:
                 session.run(query)
-            LOGGER.info("Delete {} node.".format(automaton_name))
+            LOGGER.info("Deleted {} node.".format(automaton_name))
 
     def create_semantic_link(self, automaton: Automaton, name: str, edge: Edge = None, loc: Location = None,
                              act: Activity = None, ent: Entity = None, entity_labels: List[str] = None):
