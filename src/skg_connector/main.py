@@ -1,11 +1,11 @@
 from neo4j.exceptions import AuthError
 
-import src.skg2automata.mgrs.skg_connector as conn
-from src.skg2automata.logger.logger import Logger
-from src.skg2automata.mgrs.skg_reader import Skg_Reader, SCHEMA
-from src.skg2automata.mgrs.skg_writer import Skg_Writer
-from src.skg2automata.model.schema import Timestamp
-from src.skg2automata.model.semantics import EntityForest
+import src.skg_connector.mgrs.connector_mgr as conn
+from src.skg_connector.logger.logger import Logger
+from src.skg_connector.mgrs.skg_reader import Skg_Reader, SCHEMA
+from src.skg_connector.mgrs.skg_writer import Skg_Writer
+from src.skg_connector.model.schema import Timestamp
+from src.skg_connector.model.semantics import EntityForest
 
 LOGGER = Logger('main')
 
@@ -48,14 +48,14 @@ try:
         print(e.activity, e.timestamp)
 
     writer = Skg_Writer(driver)
-    automaton = writer.write_automaton()
-    sensors = reader.get_entities_by_labels(['Sensor'])
-    entities = reader.get_related_entities('Sensor', 'Station', filter1='S4', limit=1, random=True)
-    for tup in entities:
-        print(tup[0].entity_id, tup[1].entity_id)
+    # automaton = writer.write_automaton()
+    # sensors = reader.get_entities_by_labels(['Sensor'])
+    # entities = reader.get_related_entities('Sensor', 'Station', filter1='S4', limit=1, random=True)
+    # for tup in entities:
+    #    print(tup[0].entity_id, tup[1].entity_id)
     # writer.create_semantic_link(automaton, name='LABELED_BY', edge=automaton.edges[0],
     #                            ent=sensors[0], entity_labels=['Sensor'])
-    writer.cleanup('')
+    # writer.cleanup('')
 
     conn.close_connection(driver)
     LOGGER.info('Testing complete.')

@@ -10,7 +10,7 @@
   "entity": "Entity",
   "entity_labels": [
     "Part",
-    "Station"
+    "Station:Location"
   ],
   "entity_properties": {
     "id": "sysId"
@@ -23,7 +23,7 @@
     }
   ],
   "item": "Part",
-  "resource": "Station",
+  "resource": "Station:Location",
   "event_to_item": "ACTS_ON",
   "event_to_resource": "OCCURRED_AT",
   "activity": "Activity",

@@ -3,15 +3,15 @@ import os
 
 from neo4j import GraphDatabase, Driver
 
-from src.skg2automata.logger.logger import Logger
+from src.skg_connector.logger.logger import Logger
 
 LOGGER = Logger('DB Connector')
 
 config = configparser.ConfigParser()
 if 'submodules' in os.listdir():
-    curr_path = os.getcwd() + '/submodules/skg2automata'
+    curr_path = os.getcwd() + '/submodules/skg_connector'
 else:
-    curr_path = os.getcwd().split('src/skg2automata')[0]
+    curr_path = os.getcwd().split('src/skg_connector')[0]
 
 config.read('{}/resources/config/config.ini'.format(curr_path))
 config.sections()

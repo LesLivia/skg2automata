@@ -5,14 +5,14 @@ from typing import List, Tuple
 
 from neo4j import Driver, Result
 
-from src.skg2automata.model.schema import Event, Entity, Activity
-from src.skg2automata.model.semantics import EntityTree, EntityRelationship, EntityForest
+from src.skg_connector.model.schema import Event, Entity, Activity
+from src.skg_connector.model.semantics import EntityTree, EntityRelationship, EntityForest
 
 config = configparser.ConfigParser()
 if 'submodules' in os.listdir():
-    curr_path = os.getcwd() + '/submodules/skg2automata'
+    curr_path = os.getcwd() + '/submodules/skg_connector'
 else:
-    curr_path = os.getcwd().split('src/skg2automata')[0]
+    curr_path = os.getcwd().split('src/skg_connector')[0]
 config.read('{}/resources/config/config.ini'.format(curr_path))
 config.sections()
 

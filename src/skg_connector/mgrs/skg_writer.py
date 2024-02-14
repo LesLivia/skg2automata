@@ -5,15 +5,15 @@ from typing import List
 
 from neo4j import Driver
 
-from src.skg2automata.logger.logger import Logger
-from src.skg2automata.model.automata import Automaton, Edge, Location
-from src.skg2automata.model.schema import Activity, Entity
+from src.skg_connector.logger.logger import Logger
+from src.skg_connector.model.automata import Automaton, Edge, Location
+from src.skg_connector.model.schema import Activity, Entity
 
 config = configparser.ConfigParser()
 if 'submodules' in os.listdir():
-    curr_path = os.getcwd() + '/submodules/skg2automata'
+    curr_path = os.getcwd() + '/submodules/skg_connector'
 else:
-    curr_path = os.getcwd().split('src/skg2automata')[0]
+    curr_path = os.getcwd().split('src/skg_connector')[0]
 config.read('{}/resources/config/config.ini'.format(curr_path))
 config.sections()
 
