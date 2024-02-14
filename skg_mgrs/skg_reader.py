@@ -5,8 +5,8 @@ from typing import List, Tuple
 
 from neo4j import Driver, Result
 
-from src.skg_connector.model.schema import Event, Entity, Activity
-from src.skg_connector.model.semantics import EntityTree, EntityRelationship, EntityForest
+from skg_model.schema import Event, Entity, Activity
+from skg_model.semantics import EntityTree, EntityRelationship, EntityForest
 
 config = configparser.ConfigParser()
 if 'submodules' in os.listdir():

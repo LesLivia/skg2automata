@@ -1,7 +1,7 @@
 from typing import List, Dict, Set, Tuple
 
-from src.skg_connector.logger.logger import Logger
-from src.skg_connector.model.schema import Entity
+from skg_logger.logger import Logger
+from skg_model.schema import Entity
 
 LOGGER = Logger('EntityTree Mgr')
 

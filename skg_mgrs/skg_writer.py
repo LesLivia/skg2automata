@@ -5,9 +5,9 @@ from typing import List
 
 from neo4j import Driver
 
-from src.skg_connector.logger.logger import Logger
-from src.skg_connector.model.automata import Automaton, Edge, Location
-from src.skg_connector.model.schema import Activity, Entity
+from skg_logger.logger import Logger
+from skg_model.automata import Automaton, Edge, Location
+from skg_model.schema import Activity, Entity
 
 config = configparser.ConfigParser()
 if 'submodules' in os.listdir():

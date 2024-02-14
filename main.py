@@ -1,11 +1,11 @@
 from neo4j.exceptions import AuthError
 
-import src.skg_connector.mgrs.connector_mgr as conn
-from src.skg_connector.logger.logger import Logger
-from src.skg_connector.mgrs.skg_reader import Skg_Reader, SCHEMA
-from src.skg_connector.mgrs.skg_writer import Skg_Writer
-from src.skg_connector.model.schema import Timestamp
-from src.skg_connector.model.semantics import EntityForest
+import skg_mgrs.connector_mgr as conn
+from skg_logger.logger import Logger
+from skg_mgrs.skg_reader import Skg_Reader, SCHEMA
+from skg_mgrs.skg_writer import Skg_Writer
+from skg_model.schema import Timestamp
+from skg_model.semantics import EntityForest
 
 LOGGER = Logger('main')
 

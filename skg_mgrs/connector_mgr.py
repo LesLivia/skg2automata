@@ -3,7 +3,7 @@ import os
 
 from neo4j import GraphDatabase, Driver
 
-from src.skg_connector.logger.logger import Logger
+from skg_logger.logger import Logger
 
 LOGGER = Logger('DB Connector')
 
