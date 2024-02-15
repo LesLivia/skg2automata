@@ -33,10 +33,13 @@ class Skg_Writer:
     def __init__(self, driver: Driver):
         self.driver = driver
 
-    def write_automaton(self):
+    def write_automaton(self, name: str = None):
         LOGGER.info('Loading {}...'.format(AUTOMATON_PATH))
 
-        AUTOMATON_NAME = AUTOMATON_PATH.split('/')[-1].split('.')[0]
+        if name is None:
+            AUTOMATON_NAME = AUTOMATON_PATH.split('/')[-1].split('.')[0]
+        else:
+            AUTOMATON_NAME = name
         automaton = Automaton(name=AUTOMATON_NAME, filename=AUTOMATON_PATH)
         LOGGER.info('Found {} locations, {} edges.'.format(len(automaton.locations), len(automaton.edges)))
 
