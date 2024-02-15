@@ -34,14 +34,13 @@ class Skg_Writer:
     def write_automaton(self, name: str = None):
         AUTOMATON_PATH = config['AUTOMATA TO SKG']['automaton.path']
 
-        LOGGER.info('Loading {}...'.format(AUTOMATON_PATH))
-
         if name is None:
             AUTOMATON_NAME = AUTOMATON_PATH.split('/')[-1].split('.')[0]
         else:
             AUTOMATON_NAME = name
             AUTOMATON_PATH = AUTOMATON_PATH.format(AUTOMATON_NAME)
 
+        LOGGER.info('Loading {}...'.format(AUTOMATON_PATH))
         automaton = Automaton(name=AUTOMATON_NAME, filename=AUTOMATON_PATH)
         LOGGER.info('Found {} locations, {} edges.'.format(len(automaton.locations), len(automaton.edges)))
 
