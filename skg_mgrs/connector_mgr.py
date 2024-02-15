@@ -34,7 +34,7 @@ DB_PW = config['NEO4J SETTINGS']['db.password']
 
 
 def get_driver():
-    LOGGER.info('Setting up connection to NEO4J DB...')
+    LOGGER.debug('Setting up connection to NEO4J DB...')
     driver = GraphDatabase.driver(DB_URI, auth=(DB_USER, DB_PW))
     return driver
 

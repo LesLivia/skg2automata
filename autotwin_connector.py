@@ -11,7 +11,7 @@ def store_automaton(name: str):
     driver.close()
 
 
-def delete_automaton(name: str):
+def delete_automaton(name: str = None):
     driver = conn.get_driver()
 
     writer = Skg_Writer(driver)
