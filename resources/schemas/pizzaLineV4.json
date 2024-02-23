@@ -1,0 +1,43 @@
+{
+  "event": "Event",
+  "event_labels": [],
+  "event_properties": {
+    "act": "activity",
+    "timestamp": "timestamp"
+  },
+  "entity": "Entity",
+  "entity_labels": [
+    "Pizza",
+    "Pack",
+    "Box",
+    "Pallet",
+    "Resource",
+    "MachinePart",
+    "Sensor",
+    "Station",
+    "HumanResource",
+    "Operator"
+  ],
+  "entity_properties": {
+    "id": "sysId"
+  },
+  "item": "Pizza",
+  "resource": "Station",
+  "entity_to_entity": "PART_OF",
+  "event_to_item": "ACTS_ON",
+  "event_to_resource": "EXECUTED_BY",
+  "custom_entity_to_entity": [
+    {
+      "from": "Sensor",
+      "to": "Station",
+      "name": "PART_OF"
+    }
+  ],
+  "activity": "Activity",
+  "activity_labels": [],
+  "activity_properties": {
+    "id": [
+      "activity"
+    ]
+  }
+}

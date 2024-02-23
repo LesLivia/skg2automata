@@ -20,10 +20,10 @@ try:
 
     if 'date' not in SCHEMA['event_properties']:
         start_t = 0
-        end_t = 30000
+        end_t = 300000
     else:
         start_t = Timestamp(2023, 11, 4, 13, 0, 0)
-        end_t = Timestamp(2023, 11, 4, 14, 30, 0)
+        end_t = Timestamp(2023, 11, 5, 14, 30, 0)
 
     events = reader.get_events_by_date(start_t, end_t)
     for e in events:
@@ -47,7 +47,7 @@ try:
     for e in events:
         print(e.activity, e.timestamp)
 
-    writer = Skg_Writer(driver)
+    # writer = Skg_Writer(driver)
     # automaton = writer.write_automaton()
     # sensors = reader.get_entities_by_labels(['Sensor'])
     # entities = reader.get_related_entities('Sensor', 'Station', filter1='S4', limit=1, random=True)
