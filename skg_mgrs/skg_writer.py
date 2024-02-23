@@ -24,8 +24,6 @@ SCHEMA_NAME = config['NEO4J SCHEMA']['schema.name']
 SCHEMA_PATH = config['NEO4J SCHEMA']['schema.path'].format(curr_path, SCHEMA_NAME)
 SCHEMA = json.load(open(SCHEMA_PATH))
 
-AUTOMATON_PATH = config['AUTOMATA TO SKG']['automaton.path']
-
 LOGGER = Logger('SKG Writer')
 
 
@@ -33,10 +31,16 @@ class Skg_Writer:
     def __init__(self, driver: Driver):
         self.driver = driver
 
-    def write_automaton(self):
-        LOGGER.info('Loading {}...'.format(AUTOMATON_PATH))
+    def write_automaton(self, name: str = None):
+        AUTOMATON_PATH = config['AUTOMATA TO SKG']['automaton.path']
 
-        AUTOMATON_NAME = AUTOMATON_PATH.split('/')[-1].split('.')[0]
+        if name is None:
+            AUTOMATON_NAME = AUTOMATON_PATH.split('/')[-1].split('.')[0]
+        else:
+            AUTOMATON_NAME = name
+            AUTOMATON_PATH = AUTOMATON_PATH.format(AUTOMATON_NAME)
+
+        LOGGER.info('Loading {}...'.format(AUTOMATON_PATH))
         automaton = Automaton(name=AUTOMATON_NAME, filename=AUTOMATON_PATH)
         LOGGER.info('Found {} locations, {} edges.'.format(len(automaton.locations), len(automaton.edges)))
 
@@ -62,7 +66,8 @@ class Skg_Writer:
 
         EDGE_TO_LOC_QUERY = """
             MATCH (s:{}), (t:{}), (a:{})
-            WHERE s.{} = \"{}\" and t.{} = \"{}\" and a.{} = \"{}\"
+            WHERE s.{} = \"{}\" AND t.{} = \"{}\" AND a.{} = \"{}\"
+            AND (s) -[:{}]-> (a) AND (t) -[:{}]-> (a)
             CREATE (s) -[:{}]-> (e:{}:{} {{ {}: \"{}\" }}) -[:{}]-> (t)
             CREATE (a) <-[:{}]- (e)
         """
@@ -72,6 +77,7 @@ class Skg_Writer:
                                              LABELS['location_attr']['name'], edge.source.name,
                                              LABELS['location_attr']['name'], edge.target.name,
                                              LABELS['automaton_attr']['name'], AUTOMATON_NAME,
+                                             LABELS['has'], LABELS['has'],
                                              LABELS['edge_to_source'], LABELS['edge_label'],
                                              LABELS['automaton_feature'], LABELS['edge_attr']['event'],
                                              edge.label, LABELS['edge_to_target'], LABELS['has'])
