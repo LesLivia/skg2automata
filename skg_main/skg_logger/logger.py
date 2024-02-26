@@ -4,11 +4,7 @@ from datetime import datetime
 from enum import Enum
 
 config = configparser.ConfigParser()
-if 'submodules' in os.listdir():
-    curr_path = os.getcwd() + '/submodules/skg_connector'
-else:
-    curr_path = os.getcwd().split('src/skg_connector')[0]
-config.read('{}/resources/config/config.ini'.format(curr_path))
+config.read('{}/config/config.ini'.format(os.environ['SKG_RES_PATH']))
 config.sections()
 
 

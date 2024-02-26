@@ -10,18 +10,14 @@ from skg_main.skg_model.automata import Automaton, Edge, Location
 from skg_main.skg_model.schema import Activity, Entity
 
 config = configparser.ConfigParser()
-if 'submodules' in os.listdir():
-    curr_path = os.getcwd() + '/submodules/skg_connector'
-else:
-    curr_path = os.getcwd().split('src/skg_connector')[0]
-config.read('{}/resources/config/config.ini'.format(curr_path))
+config.read('{}/config/config.ini'.format(os.environ['SKG_RES_PATH']))
 config.sections()
 
-LABELS_PATH = config['AUTOMATA TO SKG']['labels.path'].format(curr_path)
+LABELS_PATH = config['AUTOMATA TO SKG']['labels.path'].format(os.environ['SKG_RES_PATH'])
 LABELS = json.load(open(LABELS_PATH))
 
 SCHEMA_NAME = config['NEO4J SCHEMA']['schema.name']
-SCHEMA_PATH = config['NEO4J SCHEMA']['schema.path'].format(curr_path, SCHEMA_NAME)
+SCHEMA_PATH = config['NEO4J SCHEMA']['schema.path'].format(os.environ['SKG_RES_PATH'], SCHEMA_NAME)
 SCHEMA = json.load(open(SCHEMA_PATH))
 
 LOGGER = Logger('SKG Writer')

@@ -8,17 +8,12 @@ from skg_main.skg_logger.logger import Logger
 LOGGER = Logger('DB Connector')
 
 config = configparser.ConfigParser()
-if 'submodules' in os.listdir():
-    curr_path = os.getcwd() + '/submodules/skg_connector'
-else:
-    curr_path = os.getcwd().split('src/skg_connector')[0]
-
-config.read('{}/resources/config/config.ini'.format(curr_path))
+config.read('{}/config/config.ini'.format(os.environ['SKG_RES_PATH']))
 config.sections()
 
 NEO4J_CONFIG = config['NEO4J INSTANCE']['instance']
 
-config.read('{}/resources/config/{}.ini'.format(curr_path, NEO4J_CONFIG))
+config.read('{}/config/{}.ini'.format(os.environ['SKG_RES_PATH'], NEO4J_CONFIG))
 config.sections()
 
 DB_SCHEME = config['NEO4J SETTINGS']['db.scheme']
