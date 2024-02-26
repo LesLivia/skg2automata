@@ -19,7 +19,7 @@ if this is not the case, update the [`config.ini`](resources/config/config.ini) 
 
 ## How to use
 
-Available queries are implemented as methods of the [`Skg_Reader`](skg_mgrs/skg_reader.py) class:
+Available queries are implemented as methods of the [`Skg_Reader`](skg_main/skg_mgrs/skg_reader.py) class:
 
 - *get_events()*: Returns all Event nodes.
 - *get_events_by_date(start_t, end_t)*: Return Event nodes filtered by timestamp. If both start_t and end_t are given, it returns events such that the timestamp is within range [start_t, end_t]. If only one parameter is specified, it returns events such that the timestamp is greater than start_t or smaller than end_t. If no parameter is specified, it returns all events.

@@ -4,7 +4,6 @@ version = "0.1.0"
 description = "Module to extract and store data into an SKG"
 authors = ["livialestingi <livia.lestingi@polimi.it>"]
 readme = "README.md"
-requires-python = ">=3.10"
 classifiers = [
     "Development Status :: 1 - Planning",
     "Intended Audience :: Manufacturing",
@@ -13,9 +12,7 @@ classifiers = [
     "Programming Language :: Python :: 3 :: Only"
 ]
 packages = [
-    { include = "skg_logger"},
-    { include = "skg_mgrs"},
-    { include = "skg_model"}
+    { include = "skg_main"}
 ]
 
 [tool.poetry.dependencies]

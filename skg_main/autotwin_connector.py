@@ -1,5 +1,5 @@
-import skg_mgrs.connector_mgr as conn
-from skg_mgrs.skg_writer import Skg_Writer
+import skg_main.skg_mgrs.connector_mgr as conn
+from skg_main.skg_mgrs import Skg_Writer
 
 
 def store_automaton(name: str):
