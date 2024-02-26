@@ -7,3 +7,4 @@
 resources/config/tts.ini
 resources/config/vm.ini
 main.py
+/dist/*
