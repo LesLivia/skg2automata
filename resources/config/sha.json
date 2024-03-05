@@ -2,7 +2,10 @@
   "automaton_label": "Automaton:Instance",
   "automaton_feature": "Automaton:Feature",
   "automaton_attr": {
-    "name": "name"
+    "name": "name",
+    "pov": "pov",
+    "start": "start",
+    "end": "end"
   },
   "has": "IS_PART_OF",
   "location_label": "Location",
