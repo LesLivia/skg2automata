@@ -42,11 +42,11 @@ class Skg_Writer:
             if start is not None:
                 if len(query_filter) > 0:
                     query_filter += " AND "
-                query_filter += "{}.{} = {}".format(identifier, LABELS['automaton_attr']['start'], start)
+                query_filter += "{}.{} = \"{}\"".format(identifier, LABELS['automaton_attr']['start'], start)
             if end is not None:
                 if len(query_filter) > 0:
                     query_filter += " AND "
-                query_filter += "{}.{} = {}".format(identifier, LABELS['automaton_attr']['end'], end)
+                query_filter += "{}.{} = \"{}\"".format(identifier, LABELS['automaton_attr']['end'], end)
 
             return query_filter
 
@@ -64,7 +64,7 @@ class Skg_Writer:
         LOGGER.info('Found {} locations, {} edges.'.format(len(automaton.locations), len(automaton.edges)))
 
         AUTOMATON_QUERY = """
-            CREATE (a:{} {{ {}: \"{}\", {}: \"{}\", {}: {}, {}: {} }})
+            CREATE (a:{} {{ {}: \"{}\", {}: \"{}\", {}: \"{}\", {}: \"{}\" }})
         """.format(LABELS['automaton_label'], LABELS['automaton_attr']['name'], AUTOMATON_NAME,
                    LABELS['automaton_attr']['pov'], pov, LABELS['automaton_attr']['start'], start,
                    LABELS['automaton_attr']['end'], end)
