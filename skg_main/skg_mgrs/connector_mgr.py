@@ -13,19 +13,24 @@ config.sections()
 
 NEO4J_CONFIG = config['NEO4J INSTANCE']['instance']
 
-config.read('{}/config/{}.ini'.format(os.environ['SKG_RES_PATH'], NEO4J_CONFIG))
-config.sections()
-
-DB_SCHEME = config['NEO4J SETTINGS']['db.scheme']
-DB_IP = config['NEO4J SETTINGS']['db.ip']
-DB_PORT = config['NEO4J SETTINGS']['db.port']
-DB_USER = config['NEO4J SETTINGS']['db.user']
-DB_ENCRIPTION = config['NEO4J SETTINGS']['db.encryption']
-if DB_ENCRIPTION == 'x':
-    DB_URI = '{}://{}:{}'.format(DB_SCHEME, DB_IP, DB_PORT)
+if NEO4J_CONFIG.lower() == 'env_var':
+    DB_URI = os.environ['NEO4J_URI']
+    DB_USER = os.environ['NEO4J_USER']
+    DB_PW = os.environ['NEO4J_PW']
 else:
-    DB_URI = '{}+{}://{}:{}'.format(DB_SCHEME, DB_ENCRIPTION, DB_IP, DB_PORT)
-DB_PW = config['NEO4J SETTINGS']['db.password']
+    config.read('{}/config/{}.ini'.format(os.environ['SKG_RES_PATH'], NEO4J_CONFIG))
+    config.sections()
+
+    DB_SCHEME = config['NEO4J SETTINGS']['db.scheme']
+    DB_IP = config['NEO4J SETTINGS']['db.ip']
+    DB_PORT = config['NEO4J SETTINGS']['db.port']
+    DB_USER = config['NEO4J SETTINGS']['db.user']
+    DB_ENCRIPTION = config['NEO4J SETTINGS']['db.encryption']
+    if DB_ENCRIPTION == 'x':
+        DB_URI = '{}://{}:{}'.format(DB_SCHEME, DB_IP, DB_PORT)
+    else:
+        DB_URI = '{}+{}://{}:{}'.format(DB_SCHEME, DB_ENCRIPTION, DB_IP, DB_PORT)
+    DB_PW = config['NEO4J SETTINGS']['db.password']
 
 
 def get_driver():

@@ -16,7 +16,13 @@ config.sections()
 LABELS_PATH = config['AUTOMATA TO SKG']['labels.path'].format(os.environ['SKG_RES_PATH'])
 LABELS = json.load(open(LABELS_PATH))
 
-SCHEMA_NAME = config['NEO4J SCHEMA']['schema.name']
+NEO4J_CONFIG = config['NEO4J INSTANCE']['instance']
+
+if NEO4J_CONFIG.lower() == 'env_var':
+    SCHEMA_NAME = os.environ['NEO4J_SCHEMA']
+else:
+    SCHEMA_NAME = config['NEO4J SCHEMA']['schema.name']
+
 SCHEMA_PATH = config['NEO4J SCHEMA']['schema.path'].format(os.environ['SKG_RES_PATH'], SCHEMA_NAME)
 SCHEMA = json.load(open(SCHEMA_PATH))
 
