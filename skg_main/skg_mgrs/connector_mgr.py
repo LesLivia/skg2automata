@@ -15,8 +15,8 @@ NEO4J_CONFIG = config['NEO4J INSTANCE']['instance']
 
 if NEO4J_CONFIG.lower() == 'env_var':
     DB_URI = os.environ['NEO4J_URI']
-    DB_USER = os.environ['NEO4J_USER']
-    DB_PW = os.environ['NEO4J_PW']
+    DB_USER = os.environ['NEO4J_USERNAME']
+    DB_PW = os.environ['NEO4J_PASSWORD']
 else:
     config.read('{}/config/{}.ini'.format(os.environ['SKG_RES_PATH'], NEO4J_CONFIG))
     config.sections()
