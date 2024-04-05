@@ -222,15 +222,27 @@ class Skg_Reader:
             else:
                 return None
 
-    def get_entities_by_labels(self, labels: List[str] = None, limit: int = None, random: bool = False):
+    def get_entities_by_labels(self, labels: List[str] = None, limit: int = None, random: bool = False,
+                               start_t=None, end_t=None):
+
         if labels is None:
             return self.get_entities(limit, random)
         else:
             query_filter = "WHERE " + ' and '.join(["e:{}".format(l) for l in labels])
             if 'version' in SCHEMA:
                 query_filter += ' and e:{}'.format(SCHEMA['version'])
+            if start_t is not None and end_t is not None:
+                query_filter += ' and ev.{} >= {} and ev.{} <= {}'.format(SCHEMA['event_properties']['timestamp'],
+                                                                          start_t,
+                                                                          SCHEMA['event_properties']['timestamp'],
+                                                                          end_t)
 
-        query = "MATCH (e:{}) {} RETURN ID(e), e".format(SCHEMA['entity'], query_filter)
+        if start_t is None and end_t is None:
+            query = "MATCH (e:{}) {} RETURN ID(e), e".format(SCHEMA['entity'], query_filter)
+        else:
+            query = "MATCH (e:{}) <-[:{}]- (ev:{}) {} RETURN ID(e), e".format(SCHEMA['entity'],
+                                                                              SCHEMA['event_to_item'], SCHEMA['event'],
+                                                                              query_filter)
 
         if random:
             query = query + ', rand() as r ORDER BY r'
@@ -246,14 +258,14 @@ class Skg_Reader:
             else:
                 return [Entity.parse_ent(e, SCHEMA['entity_properties'], neo4_id=e['ID(e)']) for e in entities.data()]
 
-    def get_items(self, labels_hierarchy=None, limit: int = None, random: bool = False):
+    def get_items(self, labels_hierarchy=None, limit: int = None, random: bool = False, start_t=None, end_t=None):
         if labels_hierarchy is None:
             labels_hierarchy: List[List[str]] = self.get_entity_labels_hierarchy()
         if 'item' in SCHEMA:
             labels_seq = [seq for seq in labels_hierarchy if SCHEMA['item'] in seq][0]
             entities: List[Entity] = []
             for label in labels_seq:
-                entities.extend(self.get_entities_by_labels(label.split('-'), limit, random))
+                entities.extend(self.get_entities_by_labels(label.split('-'), limit, random, start_t, end_t))
             return entities
         else:
             return self.get_entities(limit, random)
