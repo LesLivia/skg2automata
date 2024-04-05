@@ -11,10 +11,8 @@
     "Pack",
     "Box",
     "Pallet",
-    "Resource",
-    "MachinePart",
-    "Sensor",
-    "Station",
+    "MachinePart:Sensor",
+    "Station:Ensemble",
     "HumanResource",
     "Operator"
   ],
@@ -22,14 +20,14 @@
     "id": "sysId"
   },
   "item": "Pizza",
-  "resource": "Station",
+  "resource": "Station:Ensemble",
   "entity_to_entity": "PART_OF",
   "event_to_item": "ACTS_ON",
   "event_to_resource": "EXECUTED_BY",
   "custom_entity_to_entity": [
     {
-      "from": "Sensor",
-      "to": "Station",
+      "from": "MachinePart:Sensor",
+      "to": "Station:Ensemble",
       "name": "PART_OF"
     }
   ],
