@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Dict
 
 import pygraphviz as pgv
 
@@ -13,6 +13,13 @@ class Edge:
         self.label = label
         self.source = source
         self.target = target
+
+
+class TimeDistr:
+    def __init__(self, entity_type: str, res_id: str, params: Dict[str, int]):
+        self.entity_type = entity_type
+        self.res_id = res_id
+        self.params = params
 
 
 class Automaton:

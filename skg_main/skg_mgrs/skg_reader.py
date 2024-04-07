@@ -7,6 +7,7 @@ from neo4j import Driver, Result
 
 from skg_main.skg_model.schema import Event, Entity, Activity
 from skg_main.skg_model.semantics import EntityTree, EntityRelationship, EntityForest
+from skg_main.skg_model.automata import TimeDistr
 
 config = configparser.ConfigParser()
 config.read('{}/config/config.ini'.format(os.environ['SKG_RES_PATH']))
@@ -21,6 +22,9 @@ else:
 
 SCHEMA_PATH = config['NEO4J SCHEMA']['schema.path'].format(os.environ['SKG_RES_PATH'], SCHEMA_NAME)
 SCHEMA = json.load(open(SCHEMA_PATH))
+
+LABELS_PATH = config['AUTOMATA TO SKG']['labels.path'].format(os.environ['SKG_RES_PATH'])
+SHA_LABELS = json.load(open(LABELS_PATH))
 
 
 class Skg_Reader:
@@ -425,5 +429,27 @@ class Skg_Reader:
             entities: List[Tuple[Entity, Entity]] = [(Entity.parse_ent(r, SCHEMA['entity_properties'], 'e2'),
                                                       Entity.parse_ent(r, SCHEMA['entity_properties'], 'e1'))
                                                      for r in results.data()]
+
+        return entities
+
+    def get_invariants(self, automaton_name: str, start: int, end: int, loc_name: str):
+        query = """MATCH (a:{}) <-[:{}]- (l:{}:{}) 
+        -[:MODELS]-> (s:{}) -[:APPLIES]-> (f:{}) 
+        -[:OUTPUT]-> (e:{}), (g:GraphModel:Instance)
+        WHERE a.{} = '{}' and a.{} = '{}' and a.{} = '{}' and l.{} = '{}'
+        RETURN l,s,f,e"""
+        query = query.format(SHA_LABELS["automaton_label"], SHA_LABELS["has"],
+                             SHA_LABELS["automaton_feature"], SHA_LABELS["location_label"],
+                             SCHEMA["resource"], SCHEMA["res_time_distr"], SCHEMA["entity_type"],
+                             SHA_LABELS["automaton_attr"]["name"], automaton_name,
+                             SHA_LABELS["automaton_attr"]["start"], start,
+                             SHA_LABELS["automaton_attr"]["end"], end,
+                             SHA_LABELS["location_attr"]["name"], loc_name)
+
+        with self.driver.session() as session:
+            results = session.run(query)
+            entities: List[TimeDistr] = [TimeDistr(r['e']['code'], r['s']['sysId'],
+                                                   {a: r['f'][SCHEMA['res_time_distr_attr'][a]] for a in
+                                                    SCHEMA['res_time_distr_attr']}) for r in results.data()]
 
         return entities

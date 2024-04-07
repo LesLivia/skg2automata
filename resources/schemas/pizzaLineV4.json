@@ -6,6 +6,7 @@
     "timestamp": "timestamp"
   },
   "entity": "Entity",
+  "entity_type": "EntityType",
   "entity_labels": [
     "Pizza",
     "Pack",
@@ -21,6 +22,11 @@
   },
   "item": "Pizza",
   "resource": "Station:Ensemble",
+  "res_time_distr": "Formula",
+  "res_time_distr_attr": {
+    "mean": "processingTimeMean",
+    "std": "processingTimeStd"
+  },
   "entity_to_entity": "PART_OF",
   "event_to_item": "ACTS_ON",
   "event_to_resource": "EXECUTED_BY",
