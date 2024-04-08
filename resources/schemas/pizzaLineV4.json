@@ -27,6 +27,12 @@
     "mean": "processingTimeMean",
     "std": "processingTimeStd"
   },
+  "route": "Connection:Route",
+  "route_attr": {
+    "probability": "probability",
+    "mean": "transferTimeMean",
+    "std": "transferTimeStd"
+  },
   "entity_to_entity": "PART_OF",
   "event_to_item": "ACTS_ON",
   "event_to_resource": "EXECUTED_BY",

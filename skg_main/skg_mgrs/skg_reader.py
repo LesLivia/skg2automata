@@ -433,8 +433,7 @@ class Skg_Reader:
         return entities
 
     def get_invariants(self, automaton_name: str, start: int, end: int, loc_name: str):
-        query = """MATCH (a:{}) <-[:{}]- (l:{}:{}) 
-        -[:MODELS]-> (s:{}) -[:APPLIES]-> (f:{}) 
+        query = """MATCH (a:{}) <-[:{}]- (l:{}:{}) -[:MODELS]-> (s:{}) -[:APPLIES]-> (f:{}) 
         -[:OUTPUT]-> (e:{}), (g:GraphModel:Instance)
         WHERE a.{} = '{}' and a.{} = '{}' and a.{} = '{}' and l.{} = '{}'
         RETURN l,s,f,e"""
@@ -451,5 +450,31 @@ class Skg_Reader:
             entities: List[TimeDistr] = [TimeDistr(r['e']['code'], r['s']['sysId'],
                                                    {a: r['f'][SCHEMA['res_time_distr_attr'][a]] for a in
                                                     SCHEMA['res_time_distr_attr']}) for r in results.data()]
+
+        return entities
+
+    def get_prob_weights(self, automaton_name: str, start: int, end: int,
+                         sync: str, source_name: str):
+        query = """MATCH (a:{}) <-[:{}]- (e:{}:{}) -[:LABELED_BY]-> 
+        (s:MachinePart:Sensor) -[:PART_OF]-> (st:{}), (c:Connection:Ensemble) <-[:BELONGS_TO]- 
+        (r:{}) <-[:OCCUPIES]- (et:{}), (st2:{}) <-[:MODELS]- (src:{}:{}) -[:{}]-> (e)
+        WHERE a.{}='{}' and a.{}='{}' and a.{}='{}' and e.{}='{}' and src.{}='{}'
+        and (st) <-[:DESTINATION]- (c) and (st2) -[:ORIGIN]-> (c)
+        RETURN e, s, st, c, r, et, src, st2"""
+        query = query.format(SHA_LABELS["automaton_label"], SHA_LABELS["has"], SHA_LABELS["automaton_feature"],
+                             SHA_LABELS["edge_label"], SCHEMA["resource"], SCHEMA["route"],
+                             SCHEMA["entity_type"], SCHEMA["resource"],
+                             SHA_LABELS["automaton_feature"], SHA_LABELS["location_label"],
+                             SHA_LABELS["edge_to_source"], SHA_LABELS["automaton_attr"]["name"], automaton_name,
+                             SHA_LABELS["automaton_attr"]["start"], start, SHA_LABELS["automaton_attr"]["end"], end,
+                             SHA_LABELS["edge_attr"]["event"], sync, SHA_LABELS["location_attr"]["name"], source_name)
+
+        with self.driver.session() as session:
+            results = session.run(query)
+            entities: List[Tuple[float, TimeDistr]] = [(float(r['r'][SCHEMA['route_attr']['probability']]),
+                                                        TimeDistr(r['et']['code'], r['st']['sysId'],
+                                                                  {a: r['r'][SCHEMA['route_attr'][a]] for a in
+                                                                   SCHEMA['route_attr']})) for r in
+                                                       results.data()]
 
         return entities
