@@ -25,13 +25,17 @@
   "res_time_distr": "Formula",
   "res_time_distr_attr": {
     "mean": "processingTimeMean",
-    "std": "processingTimeStd"
+    "std": "processingTimeStd",
+    "cdfX": "processingTimeCdfX",
+    "cdfY": "processingTimeCdfY"
   },
   "route": "Connection:Route",
   "route_attr": {
     "probability": "probability",
     "mean": "transferTimeMean",
-    "std": "transferTimeStd"
+    "std": "transferTimeStd",
+    "cdfX": "transferTimeCdfX",
+    "cdfY": "transferTimeCdfY"
   },
   "entity_to_entity": "PART_OF",
   "event_to_item": "ACTS_ON",
