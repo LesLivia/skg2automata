@@ -184,9 +184,14 @@ class Skg_Writer:
                                             self.get_sha_query_filter(automaton.name, pov, start, end, 'aut'),
                                             SCHEMA['activity_properties']['id'][0], act.act, name)
             elif ent is not None:
+                if SCHEMA['entity_properties']['id'] == 'ID':
+                    ent_filter = "ID(ent) = {}".format(ent.entity_id)
+                else:
+                    ent_filter = "ent.{} = \"{}\"".format(SCHEMA['entity_properties']['id'], ent.entity_id)
+
                 CREATE_QUERY = """
                 MATCH (s:{}) -[:{}]-> (e:{}) -[:{}]-> (t:{}) -[:{}]-> (aut:{}), (ent:{})
-                WHERE s.{} = \"{}\" and e.{} = \"{}\" and t.{} = \"{}\" and {} and ent.{} = \"{}\"
+                WHERE s.{} = \"{}\" and e.{} = \"{}\" and t.{} = \"{}\" and {} and {}
                 CREATE (e) -[:{}]-> (ent) 
                 """
                 query = CREATE_QUERY.format(LABELS['location_label'], LABELS['edge_to_source'],
@@ -197,7 +202,7 @@ class Skg_Writer:
                                             LABELS['edge_attr']['event'], edge.label,
                                             LABELS['location_attr']['name'], edge.target.name,
                                             self.get_sha_query_filter(automaton.name, pov, start, end, 'aut'),
-                                            SCHEMA['entity_properties']['id'], ent.entity_id, name)
+                                            ent_filter, name)
         elif loc is not None:
             CREATE_QUERY = """
             MATCH (l:{}) -[:{}]-> (aut:{}), (ent:{})
