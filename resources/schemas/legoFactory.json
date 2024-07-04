@@ -8,24 +8,40 @@
     "date": "timestamp"
   },
   "entity": "Entity",
+  "entity_type": "EntityType",
   "entity_labels": [
     "Part",
-    "Station:Location"
+    "Station:Ensemble"
   ],
   "entity_properties": {
     "id": "sysId"
   },
+  "item": "Part",
+  "resource": "Station:Ensemble",
+  "res_time_distr": "Formula",
+  "res_time_distr_attr": {
+    "mean": "processingTimeMean",
+    "std": "processingTimeStd",
+    "cdfX": "processingTimeCdfX",
+    "cdfY": "processingTimeCdfY"
+  },
+  "route": "Connection:Route",
+  "route_attr": {
+    "probability": "probability",
+    "mean": "transferTimeMean",
+    "std": "transferTimeStd",
+    "cdfX": "transferTimeCdfX",
+    "cdfY": "transferTimeCdfY"
+  },
+  "event_to_item": "ACTS_ON",
+  "event_to_resource": "OCCURRED_AT",
   "custom_entity_to_entity": [
     {
-      "from": "Sensor",
-      "to": "Station",
+      "from": "MachinePart:Sensor",
+      "to": "Station:Ensemble",
       "name": "PART_OF"
     }
   ],
-  "item": "Part",
-  "resource": "Station:Location",
-  "event_to_item": "ACTS_ON",
-  "event_to_resource": "OCCURRED_AT",
   "activity": "Activity",
   "activity_labels": [
   ],
