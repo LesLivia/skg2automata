@@ -22,6 +22,7 @@
   },
   "item": "Pizza",
   "resource": "Station:Ensemble",
+  "run": "Run",
   "res_time_distr": "Formula",
   "res_time_distr_attr": {
     "mean": "processingTimeMean",

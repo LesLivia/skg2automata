@@ -13,10 +13,12 @@
     "Resource"
   ],
   "entity_properties": {
-    "id": "ID"
+    "id": "sysId"
   },
   "item": "Kit",
   "resource": "Resource",
+  "run": "Run",
+  "entity_to_entity": "NEXT_RUN",
   "event_to_item": "ACTS_ON",
   "event_to_resource": "OCCURRED_AT",
   "activity": "Activity",

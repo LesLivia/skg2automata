@@ -5,9 +5,9 @@ from typing import List, Tuple
 
 from neo4j import Driver, Result
 
+from skg_main.skg_model.automata import TimeDistr
 from skg_main.skg_model.schema import Event, Entity, Activity
 from skg_main.skg_model.semantics import EntityTree, EntityRelationship, EntityForest
-from skg_main.skg_model.automata import TimeDistr
 
 config = configparser.ConfigParser()
 config.read('{}/config/config.ini'.format(os.environ['SKG_RES_PATH']))
@@ -299,7 +299,7 @@ class Skg_Reader:
         if 'entity_to_entity' not in SCHEMA:
             return [[l] for l in SCHEMA['entity_labels']]
 
-        IGNORE_LABELS = [SCHEMA['entity']]
+        IGNORE_LABELS = [SCHEMA['entity'], SCHEMA['run']]
         version_filter = ''
         if 'version' in SCHEMA:
             IGNORE_LABELS.append(SCHEMA['version'])
@@ -361,8 +361,11 @@ class Skg_Reader:
             query_tplt = "MATCH (e1:{}) - [:{}] -> (e2:{}) "
 
         query = query_tplt.format(SCHEMA['entity'], SCHEMA['entity_to_entity'], SCHEMA['entity'])
-        query += "WHERE toString(e2.{}) = \"{}\" {} RETURN e1,e2".format(SCHEMA['entity_properties']['id'], entity_id,
-                                                                         version_filter)
+        if SCHEMA['entity_properties']['id'] != 'ID':
+            query += "WHERE toString(e2.{}) = \"{}\" {} RETURN e1,e2".format(SCHEMA['entity_properties']['id'],
+                                                                             entity_id, version_filter)
+        else:
+            query += "WHERE ID(e2) = {} {} RETURN e1,e2".format(entity_id, version_filter)
 
         with self.driver.session() as session:
             results = session.run(query)
