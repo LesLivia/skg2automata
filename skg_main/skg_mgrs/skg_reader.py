@@ -271,30 +271,6 @@ class Skg_Reader:
             else:
                 return [Entity.parse_ent(e, SCHEMA['entity_properties'], neo4_id=e['ID(e)']) for e in entities.data()]
 
-    def get_items(self, labels_hierarchy=None, limit: int = None, random: bool = False, start_t=None, end_t=None):
-        if labels_hierarchy is None:
-            labels_hierarchy: List[List[str]] = self.get_entity_labels_hierarchy()
-        if 'item' in SCHEMA:
-            labels_seq = [seq for seq in labels_hierarchy if SCHEMA['item'] in seq][0]
-            entities: List[Entity] = []
-            for label in labels_seq:
-                entities.extend(self.get_entities_by_labels(label.split('-'), limit, random, start_t, end_t))
-            return entities
-        else:
-            return self.get_entities(limit, random)
-
-    def get_resources(self, labels_hierarchy=None, limit: int = None, random: bool = False):
-        if labels_hierarchy is None:
-            labels_hierarchy: List[List[str]] = self.get_entity_labels_hierarchy()
-        if 'resource' in SCHEMA:
-            unpacked_labels_seq = [[label.split('-') for label in seq if '-' in label] for seq in labels_hierarchy]
-            [labels_hierarchy.extend(labels) for labels in unpacked_labels_seq if len(labels) > 0]
-            labels_seq = [seq for seq in labels_hierarchy if SCHEMA['resource'] in seq][0]
-            entities: List[Entity] = self.get_entities_by_labels(labels_seq, limit, random)
-            return entities
-        else:
-            return self.get_entities(limit, random)
-
     def get_entity_labels_hierarchy(self):
         if 'entity_to_entity' not in SCHEMA:
             return [[l] for l in SCHEMA['entity_labels']]
@@ -318,6 +294,47 @@ class Skg_Reader:
                              '-'.join([r for r in res['labels(e2)'] if r not in IGNORE_LABELS])))
 
             return EntityTree.get_labels_hierarchy(set(rels))
+
+    def get_items(self, labels_hierarchy=None, limit: int = None, random: bool = False, start_t=None, end_t=None):
+        if labels_hierarchy is None:
+            labels_hierarchy: List[List[str]] = self.get_entity_labels_hierarchy()
+        if 'item' in SCHEMA:
+            labels_seq = [seq for seq in labels_hierarchy if SCHEMA['item'] in seq][0]
+            entities: List[Entity] = []
+            for label in labels_seq:
+                entities.extend(self.get_entities_by_labels(label.split('-'), limit, random, start_t, end_t))
+            return entities
+        else:
+            return self.get_entities(limit, random)
+
+    def get_resource_labels_hierarchy(self):
+        if 'resource_to_resource' not in SCHEMA:
+            return [[SCHEMA['resource']]]
+
+        query = "MATCH (e1:{}) - [:{}] -> (e2:{}) RETURN labels(e1), labels(e2)".format(SCHEMA['resource'],
+                                                                                        SCHEMA['resource_to_resource'],
+                                                                                        SCHEMA['resource'])
+        with self.driver.session() as session:
+            results = session.run(query)
+
+            rels: List[Tuple[str, str]] = []
+            for res in results.data():
+                rels.append(('-'.join([r for r in res['labels(e1)']]),
+                             '-'.join([r for r in res['labels(e2)']])))
+
+            return EntityTree.get_labels_hierarchy(set(rels))
+
+    def get_resources(self, labels_hierarchy=None, limit: int = None, random: bool = False):
+        if labels_hierarchy is None:
+            labels_hierarchy: List[List[str]] = self.get_resource_labels_hierarchy()
+        if 'resource' in SCHEMA:
+            unpacked_labels_seq = [[label.split('-') for label in seq if '-' in label] for seq in labels_hierarchy]
+            [labels_hierarchy.extend(labels) for labels in unpacked_labels_seq if len(labels) > 0]
+            labels_seq = [seq for seq in labels_hierarchy if SCHEMA['resource'] in seq][0]
+            entities: List[Entity] = self.get_entities_by_labels(labels_seq, limit, random)
+            return entities
+        else:
+            return self.get_entities(limit, random)
 
     def get_entity_forest(self, labels_hierarchy: List[List[str]]):
         # WARNING: Builds tree for every entity in the KG, likely computational intensive.

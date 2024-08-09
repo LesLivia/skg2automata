@@ -10,17 +10,17 @@
   "entity": "Entity",
   "entity_labels": [
     "Kit",
-    "Resource"
+    "Human"
   ],
   "entity_properties": {
     "id": "sysId"
   },
   "item": "Kit",
-  "resource": "Resource",
+  "resource": "Human",
   "run": "Run",
   "entity_to_entity": "NEXT_RUN",
   "event_to_item": "ACTS_ON",
-  "event_to_resource": "OCCURRED_AT",
+  "event_to_resource": "OPERATED_BY",
   "activity": "Activity",
   "activity_labels": [],
   "activity_properties": {
