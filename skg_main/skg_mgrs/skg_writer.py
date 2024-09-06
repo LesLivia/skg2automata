@@ -58,14 +58,14 @@ class Skg_Writer:
 
             return query_filter
 
-    def write_automaton(self, name: str = None, pov=None, start=None, end=None):
+    def write_automaton(self, name: str = None, pov=None, start=None, end=None, path=None):
         AUTOMATON_PATH = config['AUTOMATA TO SKG']['automaton.path']
 
         if name is None:
             AUTOMATON_NAME = AUTOMATON_PATH.split('/')[-1].split('.')[0]
         else:
             AUTOMATON_NAME = name
-            AUTOMATON_PATH = AUTOMATON_PATH.format(os.environ['RES_PATH'], AUTOMATON_NAME)
+            AUTOMATON_PATH = AUTOMATON_PATH.format(path, AUTOMATON_NAME)
 
         LOGGER.info('Loading {}...'.format(AUTOMATON_PATH))
         automaton = Automaton(name=AUTOMATON_NAME, filename=AUTOMATON_PATH)

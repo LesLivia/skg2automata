@@ -2,11 +2,11 @@ import skg_main.skg_mgrs.connector_mgr as conn
 from skg_main.skg_mgrs.skg_writer import Skg_Writer
 
 
-def store_automaton(name: str, pov: str = None, start=None, end=None):
+def store_automaton(name: str, pov: str = None, start=None, end=None, path=None):
     driver = conn.get_driver()
 
     writer = Skg_Writer(driver)
-    writer.write_automaton(name, pov, start, end)
+    writer.write_automaton(name, pov, start, end, path)
 
     driver.close()
 
