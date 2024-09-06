@@ -8,7 +8,7 @@ from skg_main.skg_logger.logger import Logger
 LOGGER = Logger('DB Connector')
 
 config = configparser.ConfigParser()
-config.read('{}/config/config.ini'.format(os.environ['SKG_RES_PATH']))
+config.read('{}/resources/config/config.ini'.format(os.getcwd()))
 config.sections()
 
 NEO4J_CONFIG = config['NEO4J INSTANCE']['instance']
@@ -18,7 +18,7 @@ if NEO4J_CONFIG.lower() == 'env_var':
     DB_USER = os.environ['NEO4J_USERNAME']
     DB_PW = os.environ['NEO4J_PASSWORD']
 else:
-    config.read('{}/config/{}.ini'.format(os.environ['SKG_RES_PATH'], NEO4J_CONFIG))
+    config.read('{}/resources/config/{}.ini'.format(os.getcwd(), NEO4J_CONFIG))
     config.sections()
 
     DB_SCHEME = config['NEO4J SETTINGS']['db.scheme']

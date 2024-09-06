@@ -4,7 +4,7 @@ from datetime import datetime
 from enum import Enum
 
 config = configparser.ConfigParser()
-config.read('{}/config/config.ini'.format(os.environ['SKG_RES_PATH']))
+config.read('{}/resources/config/config.ini'.format(os.getcwd()))
 config.sections()
 
 
