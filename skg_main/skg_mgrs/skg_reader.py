@@ -10,7 +10,7 @@ from skg_main.skg_model.schema import Event, Entity, Activity
 from skg_main.skg_model.semantics import EntityTree, EntityRelationship, EntityForest
 
 config = configparser.ConfigParser()
-config.read('{}/resources/config/config.ini'.format(os.getcwd()))
+config.read(os.path.dirname(os.path.abspath(__file__)).split('skg_main')[0] + 'skg_main/resources/config/config.ini')
 config.sections()
 
 NEO4J_CONFIG = config['NEO4J INSTANCE']['instance']
@@ -20,10 +20,12 @@ if NEO4J_CONFIG.lower() == 'env_var':
 else:
     SCHEMA_NAME = config['NEO4J SCHEMA']['schema.name']
 
-SCHEMA_PATH = config['NEO4J SCHEMA']['schema.path'].format(os.getcwd(), SCHEMA_NAME)
+SCHEMA_PATH = config['NEO4J SCHEMA']['schema.path'].format(
+    os.path.dirname(os.path.abspath(__file__)).split('skg_main')[0] + 'skg_main', SCHEMA_NAME)
 SCHEMA = json.load(open(SCHEMA_PATH))
 
-LABELS_PATH = config['AUTOMATA TO SKG']['labels.path'].format(os.getcwd())
+LABELS_PATH = config['AUTOMATA TO SKG']['labels.path'].format(
+    os.path.dirname(os.path.abspath(__file__)).split('skg_main')[0] + 'skg_main')
 SHA_LABELS = json.load(open(LABELS_PATH))
 
 

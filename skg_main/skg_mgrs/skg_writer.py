@@ -10,7 +10,7 @@ from skg_main.skg_model.automata import Automaton, Edge, Location
 from skg_main.skg_model.schema import Activity, Entity
 
 config = configparser.ConfigParser()
-config.read('{}/resources/config/config.ini'.format(os.getcwd()))
+config.read(os.path.dirname(os.path.abspath(__file__)).split('skg_main')[0] + 'skg_main/resources/config/config.ini')
 config.sections()
 
 LABELS_PATH = config['AUTOMATA TO SKG']['labels.path'].format(os.getcwd())

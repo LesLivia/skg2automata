@@ -12,10 +12,10 @@ Follow instructions for the [promg-core](https://github.com/Ava-S/promg-core) pr
 
 ## Configuration
 
-The default configuration file is available in the [`./resources/config/`](resources/config) folder.
+The default configuration file is available in the [`./resources/config/`](skg_main/resources/config) folder.
 
 The module currently assumes the Neo4j instance to be running on [localhost:7687](http://localhost:7687): 
-if this is not the case, update the [`config.ini`](resources/config/config.ini) file accordingly.
+if this is not the case, update the [`config.ini`](skg_main/resources/config/config.ini) file accordingly.
 
 ## How to use
 
