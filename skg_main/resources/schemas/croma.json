@@ -10,13 +10,13 @@
   "entity": "Entity",
   "entity_labels": [
     "Kit",
-    "Human"
+    "Operator"
   ],
   "entity_properties": {
-    "id": "sysId"
+    "id": "internalId"
   },
   "item": "Kit",
-  "resource": "Human",
+  "resource": "Operator",
   "run": "Run",
   "entity_to_entity": "NEXT_RUN",
   "event_to_item": "ACTS_ON",
