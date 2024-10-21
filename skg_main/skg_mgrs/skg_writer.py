@@ -73,11 +73,13 @@ class Skg_Writer:
 
         AUTOMATON_QUERY = """
             CREATE (a:{} {{ {}: \"{}\", {}: \"{}\", {}: \"{}\", {}: \"{}\" }})
+            RETURN elementId(a)
         """.format(LABELS['automaton_label'], LABELS['automaton_attr']['name'], AUTOMATON_NAME,
                    LABELS['automaton_attr']['pov'], pov, LABELS['automaton_attr']['start'], start,
                    LABELS['automaton_attr']['end'], end)
         with self.driver.session() as session:
-            session.run(AUTOMATON_QUERY)
+            result = session.run(AUTOMATON_QUERY)
+            new_automaton_id = [r['elementId(a)'] for r in result.data()][0]
         LOGGER.info("Created Automaton node.")
 
         LOCATION_QUERY = """
@@ -115,7 +117,7 @@ class Skg_Writer:
                 session.run(query)
         LOGGER.info("Created Edge nodes.")
 
-        return automaton
+        return automaton, new_automaton_id
 
     def cleanup_all(self):
         DELETE_QUERY = """
