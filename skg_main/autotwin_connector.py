@@ -6,9 +6,11 @@ def store_automaton(name: str, pov: str = None, start=None, end=None, path=None)
     driver = conn.get_driver()
 
     writer = Skg_Writer(driver)
-    writer.write_automaton(name, pov, start, end, path)
+    automaton, new_automaton_id = writer.write_automaton(name, pov, start, end, path)
 
     driver.close()
+
+    return automaton, new_automaton_id
 
 
 def delete_automaton(name: str = None, pov: str = None, start=None, end=None):
