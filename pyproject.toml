@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "skg-connector"
-version = "0.1.14"
+version = "0.1.15"
 description = "Module to extract and store data into an SKG"
 authors = ["livialestingi <livia.lestingi@polimi.it>"]
 readme = "README.md"
