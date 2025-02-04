@@ -9,18 +9,16 @@
   },
   "entity": "Entity",
   "entity_labels": [
-    "Kit",
+    "Object",
     "Operator"
   ],
   "entity_properties": {
     "id": "internalId"
   },
-  "item": "Kit",
+  "item": "Object",
   "resource": "Operator",
-  "run": "Run",
-  "entity_to_entity": "NEXT_RUN",
   "event_to_item": "ACTS_ON",
-  "event_to_resource": "OPERATED_BY",
+  "event_to_resource": "OPERATES",
   "activity": "Activity",
   "activity_labels": [],
   "activity_properties": {
